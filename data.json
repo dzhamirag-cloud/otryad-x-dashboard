@@ -1,0 +1,102 @@
+{
+  "updatedAt": "2026-03-01T23:37:30.278983",
+  "agents": [
+    {
+      "id": "main",
+      "name": "Кайро",
+      "role": "Главный координатор",
+      "emoji": "🤖",
+      "color": "#3377ff",
+      "model": "Opus",
+      "status": "active",
+      "tokens": 1154458,
+      "tasks": 0,
+      "costUsd": 51.951,
+      "uptimeMinutes": 0,
+      "lastTask": "QR-оплата + кошелёк + координация Отряда X",
+      "lastActivity": "2026-03-01T23:37:30.116362"
+    },
+    {
+      "id": "marketer",
+      "name": "Марк",
+      "role": "Маркетолог",
+      "emoji": "📈",
+      "color": "#ff9500",
+      "model": "Sonnet",
+      "status": "idle",
+      "tokens": 343323,
+      "tasks": 0,
+      "costUsd": 3.09,
+      "uptimeMinutes": 0,
+      "lastTask": "Ожидает задачу",
+      "lastActivity": "2026-03-01T23:08:58.842932"
+    },
+    {
+      "id": "brandman",
+      "name": "Бренд",
+      "role": "Личный бренд",
+      "emoji": "🎯",
+      "color": "#ff375f",
+      "model": "Sonnet",
+      "status": "idle",
+      "tokens": 300975,
+      "tasks": 0,
+      "costUsd": 2.709,
+      "uptimeMinutes": 0,
+      "lastTask": "Ожидает задачу",
+      "lastActivity": "2026-03-01T21:51:53.625325"
+    },
+    {
+      "id": "cfo",
+      "name": "Фин",
+      "role": "CFO / Финансы",
+      "emoji": "💰",
+      "color": "#ffd60a",
+      "model": "Sonnet",
+      "status": "idle",
+      "tokens": 1785,
+      "tasks": 0,
+      "costUsd": 0.016,
+      "uptimeMinutes": 0,
+      "lastTask": "Ожидает задачу",
+      "lastActivity": "2026-03-01T21:05:45.211608"
+    },
+    {
+      "id": "techlead",
+      "name": "Текна",
+      "role": "Tech Lead / CTO",
+      "emoji": "⚙️",
+      "color": "#5ac8fa",
+      "model": "Sonnet",
+      "status": "idle",
+      "tokens": 51614,
+      "tasks": 0,
+      "costUsd": 0.465,
+      "uptimeMinutes": 0,
+      "lastTask": "**Важно:** Не писать код напрямую — только архитектура и rev",
+      "lastActivity": "2026-03-01T21:30:05.060262"
+    },
+    {
+      "id": "strategist",
+      "name": "Прайм",
+      "role": "Бизнес-стратег",
+      "emoji": "🧠",
+      "color": "#bf5af2",
+      "model": "Sonnet",
+      "status": "idle",
+      "tokens": 81638,
+      "tasks": 0,
+      "costUsd": 0.735,
+      "uptimeMinutes": 0,
+      "lastTask": "- Запросить у Марка боли клиентов и feedback",
+      "lastActivity": "2026-03-01T23:31:32.191088"
+    }
+  ],
+  "totals": {
+    "agents": 6,
+    "active": 1,
+    "totalTokens": 1933793,
+    "totalTasks": 0,
+    "totalCostUsd": 58.97
+  }
+}
