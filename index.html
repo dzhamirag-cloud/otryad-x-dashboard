@@ -380,14 +380,30 @@
 </div>
 
 <script>
-const AVATARS_SVG = {
-  main: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-main" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#3377ff;stop-opacity:1" /><stop offset="100%" style="stop-color:#5ac8fa;stop-opacity:1" /></linearGradient></defs><circle cx="50" cy="35" r="18" fill="url(#grad-main)"/><rect x="35" y="53" width="30" height="35" rx="4" fill="url(#grad-main)"/></svg>`,
-  marketer: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-mark" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ff9500;stop-opacity:1" /><stop offset="100%" style="stop-color:#ffd60a;stop-opacity:1" /></linearGradient></defs><circle cx="50" cy="35" r="18" fill="url(#grad-mark)"/><rect x="35" y="53" width="30" height="35" rx="4" fill="url(#grad-mark)"/></svg>`,
-  brandman: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-brand" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ff375f;stop-opacity:1" /><stop offset="100%" style="stop-color:#ff6b8a;stop-opacity:1" /></linearGradient></defs><circle cx="50" cy="35" r="18" fill="url(#grad-brand)"/><rect x="35" y="53" width="30" height="35" rx="4" fill="url(#grad-brand)"/></svg>`,
-  cfo: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-cfo" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#ffd60a;stop-opacity:1" /><stop offset="100%" style="stop-color:#ffed4e;stop-opacity:1" /></linearGradient></defs><circle cx="50" cy="35" r="18" fill="url(#grad-cfo)"/><rect x="35" y="53" width="30" height="35" rx="4" fill="url(#grad-cfo)"/></svg>`,
-  techlead: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-tech" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#5ac8fa;stop-opacity:1" /><stop offset="100%" style="stop-color:#8edcfc;stop-opacity:1" /></linearGradient></defs><circle cx="50" cy="35" r="18" fill="url(#grad-tech)"/><rect x="35" y="53" width="30" height="35" rx="4" fill="url(#grad-tech)"/></svg>`,
-  strategist: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="grad-strat" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#bf5af2;stop-opacity:1" /><stop offset="100%" style="stop-color:#d98ff5;stop-opacity:1" /></linearGradient></defs><circle cx="50" cy="35" r="18" fill="url(#grad-strat)"/><rect x="35" y="53" width="30" height="35" rx="4" fill="url(#grad-strat)"/></svg>`
-};
+function getAvatar(agentId) {
+  const colors = {
+    main: ['#3377ff', '#5ac8fa'],
+    marketer: ['#ff9500', '#ffd60a'],
+    brandman: ['#ff375f', '#ff6b8a'],
+    cfo: ['#ffd60a', '#ffed4e'],
+    techlead: ['#5ac8fa', '#8edcfc'],
+    strategist: ['#bf5af2', '#d98ff5']
+  };
+  
+  const [c1, c2] = colors[agentId] || colors.main;
+  const gid = `grad-${agentId}-${Date.now()}`;
+  
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:${c1};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:${c2};stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="35" r="18" fill="url(#${gid})"/>
+    <rect x="35" y="53" width="30" height="35" rx="4" fill="url(#${gid})"/>
+  </svg>`;
+}
 
 const agentHistory = {};
 let activities = [];
@@ -484,7 +500,7 @@ function renderAgents(data) {
         <div class="agent-header">
           <div class="avatar-container">
             <div class="working-indicator">⚙️</div>
-            <div class="avatar">${AVATARS_SVG[agent.id] || AVATARS_SVG.main}</div>
+            <div class="avatar">${getAvatar(agent.id)}</div>
           </div>
           <div class="agent-info">
             <div class="agent-name">${agent.emoji} ${agent.name}</div>
