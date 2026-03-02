@@ -403,10 +403,11 @@ function formatCost(n) {
 }
 
 function formatUptime(mins) {
+  if (!mins || mins === 0) return '0m';
   if (mins < 60) return mins + 'м';
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  return h + 'ч ' + m + 'м';
+  return h + 'ч ' + (m > 0 ? m + 'м' : '');
 }
 
 function renderBar(current, max, label, cls) {
@@ -439,8 +440,8 @@ function trackActivity(agent) {
     });
   }
   
-  if (agent.cost > prev.cost) {
-    const delta = agent.cost - prev.cost;
+  if (agent.costUsd > prev.costUsd) {
+    const delta = agent.costUsd - prev.costUsd;
     activities.unshift({
       time: new Date(),
       agent: agent.name,
@@ -497,14 +498,14 @@ function renderAgents(data) {
         <div class="agent-bars">
           ${renderBar(agent.tokens, 1000000, 'HP', 'hp')}
           ${renderBar(agent.tasks, 100, 'MP', 'mp')}
-          ${renderBar(agent.cost * 100, 100, 'XP', 'xp')}
+          ${renderBar(agent.costUsd * 10, 100, 'XP', 'xp')}
         </div>
         
         <canvas class="mini-chart" id="chart-${agent.id}" width="300" height="40"></canvas>
         
         <div class="agent-footer">
-          <span>⏱ ${agent.uptime || '0m'}</span>
-          <span>💰 ${formatCost(agent.cost)}</span>
+          <span>⏱ ${formatUptime(agent.uptimeMinutes || 0)}</span>
+          <span>💰 ${formatCost(agent.costUsd || 0)}</span>
         </div>
       </div>
     `;
