@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Отряд X — Command Center</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a1a;
+    color: #e0e0e0;
+    font-family: 'Press Start 2P', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .header {
+    text-align: center;
+    padding: 30px 20px 20px;
+    background: linear-gradient(180deg, #1a1a3a 0%, transparent 100%);
+  }
+
+  .header h1 {
+    font-size: 28px;
+    color: #00ff88;
+    text-shadow: 0 0 10px #00ff88, 0 0 20px rgba(0,255,136,0.5);
+    margin-bottom: 10px;
+  }
+
+  .subtitle {
+    font-size: 10px;
+    color: #888;
+    letter-spacing: 2px;
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    padding: 20px;
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: #666;
+    text-transform: uppercase;
+  }
+
+  .stat-value {
+    font-size: 16px;
+    color: #fff;
+  }
+
+  .stat-value.active { color: #00ff88; text-shadow: 0 0 8px #00ff88; }
+  .stat-value.cost { color: #ffd700; }
+  .stat-value.time { color: #5ac8fa; font-size: 12px; }
+
+  .main-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .agents-section {
+    flex: 1;
+  }
+
+  .world {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 0;
+  }
+
+  .agent-card {
+    background: linear-gradient(135deg, #1a1a3a 0%, #2a2a4a 100%);
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .agent-card:hover {
+    transform: translateY(-5px);
+    border-color: #00ff88;
+    box-shadow: 0 10px 30px rgba(0,255,136,0.3);
+  }
+
+  .agent-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+
+  .avatar-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    border: 3px solid #444;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+
+  .working-indicator {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 24px;
+    animation: spin 2s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .agent-card.working .working-indicator {
+    opacity: 1;
+  }
+
+  @keyframes spin {
+    from { transform: translateX(-50%) rotate(0deg); }
+    to { transform: translateX(-50%) rotate(360deg); }
+  }
+
+  .agent-info {
+    flex: 1;
+  }
+
+  .agent-name {
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 5px;
+  }
+
+  .agent-model {
+    font-size: 8px;
+    color: #888;
+    background: rgba(0,0,0,0.3);
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .agent-status {
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .agent-status.active {
+    background: rgba(0,255,136,0.2);
+    color: #00ff88;
+  }
+
+  .agent-status.idle {
+    background: rgba(136,136,136,0.2);
+    color: #888;
+  }
+
+  .agent-bars {
+    margin-top: 15px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .bar-label {
+    font-size: 8px;
+    color: #888;
+    width: 35px;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .bar-fill {
+    height: 100%;
+    transition: width 0.5s;
+    background: linear-gradient(90deg, #00ff88, #00d4ff);
+  }
+
+  .bar-fill.hp {
+    background: linear-gradient(90deg, #00ff88, #34c759);
+  }
+
+  .bar-fill.mp {
+    background: linear-gradient(90deg, #5ac8fa, #007aff);
+  }
+
+  .bar-fill.xp {
+    background: linear-gradient(90deg, #ffd60a, #ff9500);
+  }
+
+  .bar-fill.hp.low {
+    background: linear-gradient(90deg, #ff375f, #ff6b8a);
+    animation: pulse-bar 1s infinite;
+  }
+
+  @keyframes pulse-bar {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+
+  .bar-text {
+    font-size: 8px;
+    color: #ccc;
+    width: 80px;
+    text-align: right;
+  }
+
+  .agent-footer {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: #888;
+  }
+
+  .mini-chart {
+    width: 100%;
+    height: 40px;
+    margin-top: 10px;
+  }
+
+  .sidebar {
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .activity-feed {
+    background: linear-gradient(135deg, #1a1a3a 0%, #2a2a4a 100%);
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 15px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .activity-feed h3 {
+    font-size: 12px;
+    color: #00ff88;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+  }
+
+  .activity-item {
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 8px;
+    color: #ccc;
+    border-left: 3px solid #00ff88;
+  }
+
+  .activity-item .time {
+    color: #666;
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .activity-item .agent-name {
+    color: #00ff88;
+    font-size: 9px;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 8px;
+    color: #444;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    margin-top: 40px;
+  }
+
+  @media (max-width: 1024px) {
+    .main-container {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚔️ ОТРЯД X ⚔️</h1>
+  <div class="subtitle">COMMAND CENTER v2.0 — ДЖАМАЛ'S SQUAD</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat">
+    <span class="stat-label">AGENTS:</span>
+    <span class="stat-value" id="total-agents">6</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">ACTIVE:</span>
+    <span class="stat-value active" id="active-count">0</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">TOKENS:</span>
+    <span class="stat-value cost" id="tokens-today">—</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">COST:</span>
+    <span class="stat-value cost" id="total-cost">—</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">UPDATED:</span>
+    <span class="stat-value time" id="updated-at">—</span>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="agents-section">
+    <div class="world" id="agents-grid"></div>
+  </div>
+  
+  <div class="sidebar">
+    <div class="activity-feed">
+      <h3>📋 LIVE ACTIVITY</h3>
+      <div id="activity-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  ОТРЯД X © 2026 — AI POWERED SQUAD DASHBOARD — AUTO-REFRESH 30s
+</div>
+
+<script>
+function getAvatar(agentId) {
+  const colors = {
+    main: ['#3377ff', '#5ac8fa'],
+    marketer: ['#ff9500', '#ffd60a'],
+    brandman: ['#ff375f', '#ff6b8a'],
+    cfo: ['#ffd60a', '#ffed4e'],
+    techlead: ['#5ac8fa', '#8edcfc'],
+    strategist: ['#bf5af2', '#d98ff5']
+  };
+  
+  const [c1, c2] = colors[agentId] || colors.main;
+  const gid = `grad-${agentId}-${Date.now()}`;
+  
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:${c1};stop-opacity:1" />
+        <stop offset="100%" style="stop-color:${c2};stop-opacity:1" />
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="35" r="18" fill="url(#${gid})"/>
+    <rect x="35" y="53" width="30" height="35" rx="4" fill="url(#${gid})"/>
+  </svg>`;
+}
+
+const agentHistory = {};
+let activities = [];
+
+function formatTokens(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(0) + 'K';
+  return n.toString();
+}
+
+function formatCost(n) {
+  return '$' + n.toFixed(2);
+}
+
+function formatUptime(mins) {
+  if (!mins || mins === 0) return '0m';
+  if (mins < 60) return mins + 'м';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h + 'ч ' + (m > 0 ? m + 'м' : '');
+}
+
+function renderBar(current, max, label, cls) {
+  const pct = max > 0 ? Math.min((current / max) * 100, 100) : 0;
+  const low = cls === 'hp' && pct < 30 ? ' low' : '';
+  return `
+    <div class="bar-row">
+      <span class="bar-label">${label}</span>
+      <div class="bar-track">
+        <div class="bar-fill ${cls}${low}" style="width:${pct}%"></div>
+      </div>
+      <span class="bar-text">${formatTokens(current)}/${formatTokens(max)}</span>
+    </div>
+  `;
+}
+
+function trackActivity(agent) {
+  const prev = agentHistory[agent.id];
+  if (!prev) {
+    agentHistory[agent.id] = agent;
+    return;
+  }
+  
+  if (agent.tokens > prev.tokens) {
+    const delta = agent.tokens - prev.tokens;
+    activities.unshift({
+      time: new Date(),
+      agent: agent.name,
+      text: `использовал ${formatTokens(delta)} токенов`
+    });
+  }
+  
+  if (agent.costUsd > prev.costUsd) {
+    const delta = agent.costUsd - prev.costUsd;
+    activities.unshift({
+      time: new Date(),
+      agent: agent.name,
+      text: `потратил ${formatCost(delta)}`
+    });
+  }
+  
+  activities = activities.slice(0, 20);
+  agentHistory[agent.id] = agent;
+}
+
+function renderActivityFeed() {
+  const list = document.getElementById('activity-list');
+  if (activities.length === 0) {
+    list.innerHTML = '<div style="color:#666;font-size:8px;text-align:center;padding:20px;">Пока нет активности</div>';
+    return;
+  }
+  
+  list.innerHTML = activities.map(a => `
+    <div class="activity-item">
+      <span class="time">${a.time.toLocaleTimeString('ru-RU')}</span>
+      <span class="agent-name">${a.agent}</span> ${a.text}
+    </div>
+  `).join('');
+}
+
+function renderAgents(data) {
+  const grid = document.getElementById('agents-grid');
+  
+  grid.innerHTML = data.agents.map(agent => {
+    trackActivity(agent);
+    
+    const isWorking = agent.tokens > 0 && agent.tasks > 0;
+    const workingClass = isWorking ? 'working' : '';
+    
+    const modelName = agent.model || 'sonnet-4.5';
+    
+    return `
+      <div class="agent-card ${workingClass}">
+        <div class="agent-header">
+          <div class="avatar-container">
+            <div class="working-indicator">⚙️</div>
+            <div class="avatar">${getAvatar(agent.id)}</div>
+          </div>
+          <div class="agent-info">
+            <div class="agent-name">${agent.emoji} ${agent.name}</div>
+            <div class="agent-model">🧠 ${modelName}</div>
+            <span class="agent-status ${isWorking ? 'active' : 'idle'}">
+              ${isWorking ? '● WORKING' : '○ IDLE'}
+            </span>
+          </div>
+        </div>
+        
+        <div class="agent-bars">
+          ${renderBar(agent.tokens, 1000000, 'HP', 'hp')}
+          ${renderBar(agent.tasks, 100, 'MP', 'mp')}
+          ${renderBar(agent.costUsd * 10, 100, 'XP', 'xp')}
+        </div>
+        
+        <canvas class="mini-chart" id="chart-${agent.id}" width="300" height="40"></canvas>
+        
+        <div class="agent-footer">
+          <span>⏱ ${formatUptime(agent.uptimeMinutes || 0)}</span>
+          <span>💰 ${formatCost(agent.costUsd || 0)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  data.agents.forEach(agent => {
+    drawMiniChart(agent.id, agent.tokens);
+  });
+  
+  renderActivityFeed();
+}
+
+function drawMiniChart(agentId, tokens) {
+  const canvas = document.getElementById(`chart-${agentId}`);
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  
+  ctx.clearRect(0, 0, w, h);
+  
+  const points = 20;
+  const values = Array(points).fill(0).map((_, i) => {
+    return Math.sin(i * 0.3) * (tokens / 10000) + (tokens / 5000);
+  });
+  
+  ctx.strokeStyle = '#00ff88';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  
+  values.forEach((val, i) => {
+    const x = (i / (points - 1)) * w;
+    const y = h - (val * h / Math.max(...values));
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  
+  ctx.stroke();
+  
+  ctx.fillStyle = 'rgba(0,255,136,0.1)';
+  ctx.lineTo(w, h);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fill();
+}
+
+async function loadData() {
+  try {
+    const res = await fetch('data.json');
+    const data = await res.json();
+    
+    document.getElementById('total-agents').textContent = data.agents.length;
+    document.getElementById('active-count').textContent = data.active;
+    document.getElementById('tokens-today').textContent = formatTokens(data.totalTokens);
+    document.getElementById('total-cost').textContent = formatCost(data.totalCostUsd);
+    document.getElementById('updated-at').textContent = new Date().toLocaleTimeString('ru-RU');
+    
+    renderAgents(data);
+  } catch (e) {
+    console.error('Failed to load:', e);
+  }
+}
+
+loadData();
+setInterval(loadData, 30000);
+</script>
+</body>
+</html>
