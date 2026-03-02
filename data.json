@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-01T23:37:30.278983",
+  "updatedAt": "2026-03-02T11:07:00.653694",
   "agents": [
     {
       "id": "main",
@@ -9,12 +9,12 @@
       "color": "#3377ff",
       "model": "Opus",
       "status": "active",
-      "tokens": 1154458,
+      "tokens": 1376930,
       "tasks": 0,
-      "costUsd": 51.951,
+      "costUsd": 61.962,
       "uptimeMinutes": 0,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-01T23:37:30.116362"
+      "lastActivity": "2026-03-02T11:07:00.439153"
     },
     {
       "id": "marketer",
@@ -73,7 +73,7 @@
       "tasks": 0,
       "costUsd": 0.465,
       "uptimeMinutes": 0,
-      "lastTask": "**Важно:** Не писать код напрямую — только архитектура и rev",
+      "lastTask": "Ожидает задачу",
       "lastActivity": "2026-03-01T21:30:05.060262"
     },
     {
@@ -88,15 +88,15 @@
       "tasks": 0,
       "costUsd": 0.735,
       "uptimeMinutes": 0,
-      "lastTask": "- Запросить у Марка боли клиентов и feedback",
+      "lastTask": "Ожидает задачу",
       "lastActivity": "2026-03-01T23:31:32.191088"
     }
   ],
   "totals": {
     "agents": 6,
     "active": 1,
-    "totalTokens": 1933793,
+    "totalTokens": 2156265,
     "totalTasks": 0,
-    "totalCostUsd": 58.97
+    "totalCostUsd": 68.98
   }
 }
