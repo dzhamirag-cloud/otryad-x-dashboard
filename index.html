@@ -26,6 +26,29 @@
     z-index: 1000;
   }
 
+  .view-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+  }
+
+  .view-toggle a {
+    display: inline-block;
+    padding: 10px 20px;
+    background: rgba(0, 255, 136, 0.2);
+    border: 2px solid #00ff88;
+    color: #00ff88;
+    text-decoration: none;
+    font-size: 10px;
+    transition: all 0.3s;
+  }
+
+  .view-toggle a:hover {
+    background: rgba(0, 255, 136, 0.4);
+    transform: scale(1.05);
+  }
+
   .header {
     text-align: center;
     padding: 24px 16px 16px;
@@ -231,6 +254,10 @@
 </style>
 </head>
 <body>
+
+<div class="view-toggle">
+  <a href="office.html">🏢 ОФИС</a>
+</div>
 
 <div class="header">
   <h1>⚔️ ОТРЯД X ⚔️</h1>
