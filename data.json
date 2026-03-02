@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-02T12:30:00.981196",
+  "updatedAt": "2026-03-02T12:40:00.414671",
   "agents": [
     {
       "id": "main",
@@ -8,7 +8,7 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Opus",
-      "status": "active",
+      "status": "idle",
       "tokens": 1694088,
       "tasks": 0,
       "costUsd": 76.234,
@@ -94,7 +94,7 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 1,
+    "active": 0,
     "totalTokens": 2516736,
     "totalTasks": 0,
     "totalCostUsd": 83.64
