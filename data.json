@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-02T12:50:00.799278",
+  "updatedAt": "2026-03-02T13:00:01.140596",
   "agents": [
     {
       "id": "main",
@@ -8,13 +8,13 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Opus",
-      "status": "active",
-      "tokens": 1696751,
+      "status": "idle",
+      "tokens": 1720895,
       "tasks": 0,
-      "costUsd": 76.354,
+      "costUsd": 77.44,
       "uptimeMinutes": 0,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-02T12:49:24.351821"
+      "lastActivity": "2026-03-02T12:54:45.256026"
     },
     {
       "id": "marketer",
@@ -23,7 +23,7 @@
       "emoji": "📈",
       "color": "#ff9500",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 387709,
       "tasks": 0,
       "costUsd": 3.489,
@@ -38,7 +38,7 @@
       "emoji": "🎯",
       "color": "#ff375f",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 301489,
       "tasks": 0,
       "costUsd": 2.713,
@@ -53,7 +53,7 @@
       "emoji": "💰",
       "color": "#ffd60a",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 2196,
       "tasks": 0,
       "costUsd": 0.02,
@@ -68,7 +68,7 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 52030,
       "tasks": 0,
       "costUsd": 0.468,
@@ -83,7 +83,7 @@
       "emoji": "🧠",
       "color": "#bf5af2",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 82830,
       "tasks": 0,
       "costUsd": 0.745,
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 6,
-    "totalTokens": 2523005,
+    "active": 0,
+    "totalTokens": 2547149,
     "totalTasks": 0,
-    "totalCostUsd": 83.79
+    "totalCostUsd": 84.88
   }
 }
