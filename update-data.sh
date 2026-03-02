@@ -8,23 +8,32 @@ from datetime import datetime
 # Pricing per 1M tokens (approximate)
 # Claude Opus: $15 input, $75 output → avg ~$45/M
 # Claude Sonnet: $3 input, $15 output → avg ~$9/M
-COST_PER_TOKEN = {
-    "main": 45 / 1_000_000,       # Opus
-    "marketer": 9 / 1_000_000,    # Sonnet
-    "brandman": 9 / 1_000_000,
-    "cfo": 9 / 1_000_000,
-    "techlead": 9 / 1_000_000,
-    "strategist": 9 / 1_000_000,
+MODEL_COSTS = {
+    "Opus": 45 / 1_000_000,
+    "Sonnet": 9 / 1_000_000,
+    "Haiku": 2 / 1_000_000,
 }
 
 agents_config = {
-    "main": {"name": "Кайро", "role": "Главный координатор", "emoji": "🤖", "color": "#3377ff", "model": "Opus"},
-    "marketer": {"name": "Марк", "role": "Маркетолог", "emoji": "📈", "color": "#ff9500", "model": "Sonnet"},
-    "brandman": {"name": "Бренд", "role": "Личный бренд", "emoji": "🎯", "color": "#ff375f", "model": "Sonnet"},
-    "cfo": {"name": "Фин", "role": "CFO / Финансы", "emoji": "💰", "color": "#ffd60a", "model": "Sonnet"},
-    "techlead": {"name": "Текна", "role": "Tech Lead / CTO", "emoji": "⚙️", "color": "#5ac8fa", "model": "Sonnet"},
-    "strategist": {"name": "Прайм", "role": "Бизнес-стратег", "emoji": "🧠", "color": "#bf5af2", "model": "Sonnet"},
+    "main": {"name": "Кайро", "role": "Главный координатор", "emoji": "🤖", "color": "#3377ff"},
+    "marketer": {"name": "Марк", "role": "Маркетолог", "emoji": "📈", "color": "#ff9500"},
+    "brandman": {"name": "Бренд", "role": "Личный бренд", "emoji": "🎯", "color": "#ff375f"},
+    "cfo": {"name": "Фин", "role": "CFO / Финансы", "emoji": "💰", "color": "#ffd60a"},
+    "techlead": {"name": "Текна", "role": "Tech Lead / CTO", "emoji": "⚙️", "color": "#5ac8fa"},
+    "strategist": {"name": "Прайм", "role": "Бизнес-стратег", "emoji": "🧠", "color": "#bf5af2"},
 }
+
+def get_model_name(model_str):
+    """Extract short model name from full model string"""
+    if not model_str:
+        return "Sonnet"
+    if "opus" in model_str.lower():
+        return "Opus"
+    if "sonnet" in model_str.lower():
+        return "Sonnet"
+    if "haiku" in model_str.lower():
+        return "Haiku"
+    return "Sonnet"
 
 agents = []
 for agent_id, cfg in agents_config.items():
@@ -37,6 +46,7 @@ for agent_id, cfg in agents_config.items():
     last_task = "Ожидает задачу"
     status = "idle"
     first_activity = None
+    current_model = "Sonnet"
     
     for sf in session_files:
         try:
@@ -52,13 +62,25 @@ for agent_id, cfg in agents_config.items():
             total_tokens += size // 4
             
             with open(sf, 'r') as f:
+                last_lines = []
                 for line in f:
                     try:
                         msg = json.loads(line)
                         if msg.get('role') == 'assistant':
                             task_count += 1
+                        last_lines.append(msg)
+                        if len(last_lines) > 10:
+                            last_lines.pop(0)
                     except:
                         pass
+                
+                # Extract model from last assistant message
+                for msg in reversed(last_lines):
+                    if msg.get('type') == 'message' and msg.get('message', {}).get('role') == 'assistant':
+                        model_str = msg.get('message', {}).get('model', '')
+                        if model_str:
+                            current_model = get_model_name(model_str)
+                            break
             
             if (datetime.now().timestamp() - mtime) < 300:
                 status = "active"
@@ -66,8 +88,8 @@ for agent_id, cfg in agents_config.items():
         except Exception:
             pass
     
-    # Calculate cost
-    cost_rate = COST_PER_TOKEN.get(agent_id, 9 / 1_000_000)
+    # Calculate cost based on model
+    cost_rate = MODEL_COSTS.get(current_model, MODEL_COSTS["Sonnet"])
     cost_usd = total_tokens * cost_rate
     
     # Calculate uptime (time between first and last activity today)
@@ -98,7 +120,7 @@ for agent_id, cfg in agents_config.items():
         "role": cfg["role"],
         "emoji": cfg["emoji"],
         "color": cfg["color"],
-        "model": cfg["model"],
+        "model": current_model,
         "status": status,
         "tokens": total_tokens,
         "tasks": task_count,
