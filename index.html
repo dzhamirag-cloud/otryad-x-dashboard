@@ -251,13 +251,14 @@
   }
 
   .modal .close-btn:hover { background: #2a2a5a; }
+  
+  @keyframes spin {
+    from { transform: translateX(-50%) rotate(0deg); }
+    to { transform: translateX(-50%) rotate(360deg); }
+  }
 </style>
 </head>
 <body>
-
-<div class="view-toggle">
-  <a href="office.html">🏢 ОФИС</a>
-</div>
 
 <div class="header">
   <h1>⚔️ ОТРЯД X ⚔️</h1>
@@ -363,10 +364,14 @@ function renderAgents(data) {
       <div class="agent-card ${statusClass}" onclick="openModal('${a.id}')">
         <div class="status-dot ${statusClass}"></div>
         <div class="avatar-area">
-          <div class="avatar-container">${avatar}</div>
+          <div class="avatar-container">
+            ${a.status === 'active' ? '<div style="position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:24px;animation:spin 2s linear infinite;">⚙️</div>' : ''}
+            ${avatar}
+          </div>
           <div class="agent-info">
             <h3 style="color:${a.color}">${a.emoji} ${a.name}</h3>
             <div class="agent-role">${a.role}</div>
+            <div class="agent-model" style="font-size:8px;color:#888;margin-top:4px;">🧠 ${a.model || 'Sonnet'}</div>
           </div>
         </div>
         <div class="bars">
