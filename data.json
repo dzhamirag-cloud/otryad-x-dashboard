@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-02T22:20:59.251247",
+  "updatedAt": "2026-03-02T22:22:02.318306",
   "agents": [
     {
       "id": "main",
@@ -84,19 +84,19 @@
       "color": "#bf5af2",
       "model": "Sonnet",
       "status": "active",
-      "tokens": 154193,
+      "tokens": 156326,
       "tasks": 0,
-      "costUsd": 1.388,
+      "costUsd": 1.407,
       "uptimeMinutes": 0,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-02T22:20:10.796640"
+      "lastActivity": "2026-03-02T22:21:57.030351"
     }
   ],
   "totals": {
     "agents": 6,
     "active": 1,
-    "totalTokens": 3098504,
+    "totalTokens": 3100637,
     "totalTasks": 0,
-    "totalCostUsd": 27.89
+    "totalCostUsd": 27.91
   }
 }
