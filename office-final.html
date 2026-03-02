@@ -192,13 +192,13 @@
 
         // Isometric projection helpers
         const ISO = {
-            tileWidth: 120,
-            tileHeight: 60,
+            tileWidth: 80,
+            tileHeight: 40,
             
             toScreen(x, y, z = 0) {
                 return {
                     x: (x - y) * (this.tileWidth / 2),
-                    y: (x + y) * (this.tileHeight / 2) - z * 40
+                    y: (x + y) * (this.tileHeight / 2) - z * 30
                 };
             }
         };
@@ -206,14 +206,14 @@
         // Agent data
         let agents = [];
         
-        // Agent positions in office (isometric grid)
+        // Agent positions in office (isometric grid - more spaced out)
         const agentPositions = [
-            { x: 2, y: 2, name: 'Кайро', emoji: '🤖', color: '#00d4ff', charIndex: 0 },
-            { x: 6, y: 2, name: 'Марк', emoji: '📊', color: '#ff6b6b', charIndex: 1 },
-            { x: 10, y: 2, name: 'Бренд', emoji: '🎨', color: '#ff00ff', charIndex: 2 },
-            { x: 2, y: 6, name: 'Фин', emoji: '💰', color: '#ffd700', charIndex: 3 },
-            { x: 6, y: 6, name: 'Текна', emoji: '⚙️', color: '#00ff88', charIndex: 4 },
-            { x: 10, y: 6, name: 'Прайм', emoji: '👑', color: '#fff', charIndex: 5 }
+            { x: 3, y: 2, name: 'Кайро', emoji: '🤖', color: '#00d4ff', charIndex: 0 },
+            { x: 7, y: 2, name: 'Марк', emoji: '📊', color: '#ff6b6b', charIndex: 1 },
+            { x: 11, y: 2, name: 'Бренд', emoji: '🎨', color: '#ff00ff', charIndex: 2 },
+            { x: 3, y: 7, name: 'Фин', emoji: '💰', color: '#ffd700', charIndex: 3 },
+            { x: 7, y: 7, name: 'Текна', emoji: '⚙️', color: '#00ff88', charIndex: 4 },
+            { x: 11, y: 7, name: 'Прайм', emoji: '👑', color: '#fff', charIndex: 5 }
         ];
 
         // Load agent data
@@ -316,19 +316,19 @@
 
         // Draw desk
         function drawDesk(x, y, agent) {
-            // Desk
-            drawIsoCube(x, y, 0, 1.8, 1.0, 0.15, '#8B4513');
+            // Desk (larger)
+            drawIsoCube(x, y, 0, 2.2, 1.4, 0.2, '#8B4513');
             // Monitor
-            drawIsoCube(x + 0.5, y + 0.2, 0.15, 0.6, 0.05, 0.4, '#333');
+            drawIsoCube(x + 0.6, y + 0.3, 0.2, 0.8, 0.08, 0.6, '#333');
             const screenColor = agent && agent.status === 'working' ? '#1a4d6e' : '#0a0a1a';
-            drawIsoCube(x + 0.52, y + 0.22, 0.55, 0.56, 0.03, 0.36, screenColor);
+            drawIsoCube(x + 0.62, y + 0.32, 0.8, 0.76, 0.04, 0.56, screenColor);
             
             // Keyboard
-            drawIsoCube(x + 0.4, y + 0.7, 0.15, 0.6, 0.3, 0.03, '#444');
+            drawIsoCube(x + 0.5, y + 0.9, 0.2, 0.7, 0.4, 0.05, '#444');
             
             // Chair
-            drawIsoCube(x - 0.5, y - 0.5, 0, 0.5, 0.5, 0.6, '#555');
-            drawIsoCube(x - 0.5, y - 0.3, 0.6, 0.5, 0.1, 0.5, '#666');
+            drawIsoCube(x - 0.6, y - 0.6, 0, 0.6, 0.6, 0.7, '#555');
+            drawIsoCube(x - 0.6, y - 0.4, 0.7, 0.6, 0.12, 0.6, '#666');
         }
 
         // Draw floor
@@ -364,7 +364,7 @@
             if (loadedCount < characterSprites.length) return;
             
             const sprite = characterSprites[agent.charIndex];
-            const pos = ISO.toScreen(agent.x - 0.2, agent.y - 0.5, 0.15);
+            const pos = ISO.toScreen(agent.x - 0.3, agent.y - 0.8, 0.2);
             const cx = canvas.width / 2 + pos.x;
             const cy = canvas.height / 2 + pos.y;
             
@@ -373,12 +373,13 @@
             ctx.globalCompositeOperation = 'source-over';
             ctx.imageSmoothingEnabled = false;
             
-            // Draw sprite scaled up
-            const scale = 2.5;
+            // Draw sprite scaled down
+            const scale = 1.2;
             ctx.drawImage(sprite, cx - sprite.width * scale / 2, cy - sprite.height * scale, sprite.width * scale, sprite.height * scale);
             
-            // Color overlay
-            ctx.globalCompositeOperation = 'multiply';
+            // Color overlay (lighter)
+            ctx.globalCompositeOperation = 'source-atop';
+            ctx.globalAlpha = 0.4;
             ctx.fillStyle = agent.color;
             ctx.fillRect(cx - sprite.width * scale / 2, cy - sprite.height * scale, sprite.width * scale, sprite.height * scale);
             
@@ -406,11 +407,13 @@
             // Character sprite
             drawCharacterSprite(agent);
 
-            // Working particles
-            if (agent.status === 'working' && Math.random() > 0.85) {
+            // Working particles (reduced)
+            if (agent.status === 'working' && Math.random() > 0.95) {
                 ctx.fillStyle = agent.color;
-                ctx.font = '20px Arial';
-                ctx.fillText('✨', cx + (Math.random() - 0.5) * 50, cy - 60 - Math.random() * 30);
+                ctx.font = '14px Arial';
+                ctx.globalAlpha = 0.6;
+                ctx.fillText('✨', cx + (Math.random() - 0.5) * 40, cy - 50 - Math.random() * 20);
+                ctx.globalAlpha = 1.0;
             }
 
             // Name tag
