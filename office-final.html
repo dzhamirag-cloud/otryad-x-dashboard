@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отряд X — Офис</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #office-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        #stats-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00ff88;
+            font-size: 12px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 10;
+        }
+        .view-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        .view-toggle a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            text-decoration: none;
+            font-size: 10px;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+        .view-toggle a:hover {
+            background: rgba(0, 255, 136, 0.4);
+            transform: scale(1.05);
+        }
+        #agents-panel {
+            position: absolute;
+            left: 20px;
+            top: 80px;
+            width: 280px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            padding: 15px;
+            z-index: 10;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        .agent-card {
+            background: rgba(20,20,40,0.8);
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .agent-card:hover {
+            border-color: #00ff88;
+            transform: translateX(5px);
+        }
+        .agent-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .agent-emoji {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        .agent-card-name {
+            font-size: 12px;
+            color: #fff;
+            flex: 1;
+        }
+        .agent-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .agent-card-stat {
+            font-size: 8px;
+            color: #aaa;
+            margin: 3px 0;
+        }
+        .stat-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin: 4px 0;
+            overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+            transition: width 0.5s;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff88;
+            font-size: 14px;
+            text-align: center;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="office-container">
+        <div class="view-toggle">
+            <a href="index.html">📊 GRID</a>
+        </div>
+        <canvas id="office-canvas"></canvas>
+        <div id="stats-overlay">
+            <div>⚔️ ОТРЯД X — ОФИС ⚔️</div>
+            <div id="time"></div>
+        </div>
+        <div id="agents-panel"></div>
+        <div id="loading">Loading characters...</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('office-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Character sprites loader
+        const characterSprites = [];
+        const characterPaths = [
+            'assets/kenney-city/Characters/Human/Human_0_Idle0.png',
+            'assets/kenney-city/Characters/Human/Human_1_Idle0.png',
+            'assets/kenney-city/Characters/Human/Human_2_Idle0.png',
+            'assets/kenney-city/Characters/Human/Human_3_Idle0.png',
+            'assets/kenney-city/Characters/Human/Human_4_Idle0.png',
+            'assets/kenney-city/Characters/Human/Human_5_Idle0.png'
+        ];
+        
+        let loadedCount = 0;
+        characterPaths.forEach((path, i) => {
+            const img = new Image();
+            img.onload = () => {
+                loadedCount++;
+                if (loadedCount === characterPaths.length) {
+                    document.getElementById('loading').style.display = 'none';
+                }
+            };
+            img.src = path;
+            characterSprites.push(img);
+        });
+        
+        // Resize canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Isometric projection helpers
+        const ISO = {
+            tileWidth: 120,
+            tileHeight: 60,
+            
+            toScreen(x, y, z = 0) {
+                return {
+                    x: (x - y) * (this.tileWidth / 2),
+                    y: (x + y) * (this.tileHeight / 2) - z * 40
+                };
+            }
+        };
+
+        // Agent data
+        let agents = [];
+        
+        // Agent positions in office (isometric grid)
+        const agentPositions = [
+            { x: 2, y: 2, name: 'Кайро', emoji: '🤖', color: '#00d4ff', charIndex: 0 },
+            { x: 6, y: 2, name: 'Марк', emoji: '📊', color: '#ff6b6b', charIndex: 1 },
+            { x: 10, y: 2, name: 'Бренд', emoji: '🎨', color: '#ff00ff', charIndex: 2 },
+            { x: 2, y: 6, name: 'Фин', emoji: '💰', color: '#ffd700', charIndex: 3 },
+            { x: 6, y: 6, name: 'Текна', emoji: '⚙️', color: '#00ff88', charIndex: 4 },
+            { x: 10, y: 6, name: 'Прайм', emoji: '👑', color: '#fff', charIndex: 5 }
+        ];
+
+        // Load agent data
+        async function loadData() {
+            try {
+                const response = await fetch('data.json');
+                const data = await response.json();
+                
+                agents = data.agents.map((agent, i) => ({
+                    ...agent,
+                    ...agentPositions[i],
+                    animation: 'idle',
+                    animFrame: 0,
+                    status: agent.tokens > 0 ? 'working' : 'idle'
+                }));
+                
+                updateAgentsPanel();
+            } catch (e) {
+                console.error('Failed to load data:', e);
+            }
+        }
+
+        // Update agents panel
+        function updateAgentsPanel() {
+            const panel = document.getElementById('agents-panel');
+            panel.innerHTML = agents.map(agent => `
+                <div class="agent-card" onclick="focusAgent('${agent.name}')">
+                    <div class="agent-card-header">
+                        <span class="agent-emoji">${agent.emoji}</span>
+                        <span class="agent-card-name">${agent.name}</span>
+                        <span class="agent-status-dot"></span>
+                    </div>
+                    <div class="agent-card-stat">💰 Tokens: ${(agent.tokens || 0).toLocaleString()}</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" style="width: ${Math.min(100, (agent.tokens || 0) / 10000)}%"></div>
+                    </div>
+                    <div class="agent-card-stat">📋 Tasks: ${agent.tasks || 0}</div>
+                    <div class="agent-card-stat">💵 Cost: $${(agent.cost || 0).toFixed(2)}</div>
+                    <div class="agent-card-stat">⏱ Uptime: ${agent.uptime || '0m'}</div>
+                </div>
+            `).join('');
+        }
+
+        function focusAgent(name) {
+            const agent = agents.find(a => a.name === name);
+            if (agent) {
+                agent.highlight = true;
+                setTimeout(() => agent.highlight = false, 2000);
+            }
+        }
+
+        // Draw isometric cube (for furniture)
+        function drawIsoCube(x, y, z, w, h, d, color) {
+            const pos = ISO.toScreen(x, y, z);
+            const cx = canvas.width / 2 + pos.x;
+            const cy = canvas.height / 2 + pos.y;
+
+            const W = w * ISO.tileWidth / 2;
+            const H = h * ISO.tileHeight / 2;
+            const D = d * 40;
+
+            // Top
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + W, cy + w * ISO.tileHeight / 4);
+            ctx.lineTo(cx, cy + (w + h) * ISO.tileHeight / 4);
+            ctx.lineTo(cx - H, cy + h * ISO.tileHeight / 4);
+            ctx.closePath();
+            ctx.fill();
+
+            // Right
+            ctx.fillStyle = adjustBrightness(color, -25);
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + W, cy + w * ISO.tileHeight / 4);
+            ctx.lineTo(cx + W, cy + w * ISO.tileHeight / 4 + D);
+            ctx.lineTo(cx, cy + D);
+            ctx.closePath();
+            ctx.fill();
+
+            // Left
+            ctx.fillStyle = adjustBrightness(color, -40);
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx - H, cy + h * ISO.tileHeight / 4);
+            ctx.lineTo(cx - H, cy + h * ISO.tileHeight / 4 + D);
+            ctx.lineTo(cx, cy + D);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function adjustBrightness(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const r = Math.max(0, Math.min(255, (num >> 16) + percent));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + percent));
+            const b = Math.max(0, Math.min(255, (num & 0x0000FF) + percent));
+            return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+        }
+
+        // Draw desk
+        function drawDesk(x, y, agent) {
+            // Desk
+            drawIsoCube(x, y, 0, 1.8, 1.0, 0.15, '#8B4513');
+            // Monitor
+            drawIsoCube(x + 0.5, y + 0.2, 0.15, 0.6, 0.05, 0.4, '#333');
+            const screenColor = agent && agent.status === 'working' ? '#1a4d6e' : '#0a0a1a';
+            drawIsoCube(x + 0.52, y + 0.22, 0.55, 0.56, 0.03, 0.36, screenColor);
+            
+            // Keyboard
+            drawIsoCube(x + 0.4, y + 0.7, 0.15, 0.6, 0.3, 0.03, '#444');
+            
+            // Chair
+            drawIsoCube(x - 0.5, y - 0.5, 0, 0.5, 0.5, 0.6, '#555');
+            drawIsoCube(x - 0.5, y - 0.3, 0.6, 0.5, 0.1, 0.5, '#666');
+        }
+
+        // Draw floor
+        function drawFloor() {
+            const tiles = 14;
+            for (let x = 0; x < tiles; x++) {
+                for (let y = 0; y < tiles; y++) {
+                    const pos = ISO.toScreen(x, y, 0);
+                    const cx = canvas.width / 2 + pos.x;
+                    const cy = canvas.height / 2 + pos.y;
+                    
+                    const color = (x + y) % 2 === 0 ? '#2c3e50' : '#34495e';
+                    
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy);
+                    ctx.lineTo(cx + ISO.tileWidth / 2, cy + ISO.tileHeight / 2);
+                    ctx.lineTo(cx, cy + ISO.tileHeight);
+                    ctx.lineTo(cx - ISO.tileWidth / 2, cy + ISO.tileHeight / 2);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Grid lines
+                    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Draw character sprite
+        function drawCharacterSprite(agent) {
+            if (loadedCount < characterSprites.length) return;
+            
+            const sprite = characterSprites[agent.charIndex];
+            const pos = ISO.toScreen(agent.x - 0.2, agent.y - 0.5, 0.15);
+            const cx = canvas.width / 2 + pos.x;
+            const cy = canvas.height / 2 + pos.y;
+            
+            // Color tint
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.imageSmoothingEnabled = false;
+            
+            // Draw sprite scaled up
+            const scale = 2.5;
+            ctx.drawImage(sprite, cx - sprite.width * scale / 2, cy - sprite.height * scale, sprite.width * scale, sprite.height * scale);
+            
+            // Color overlay
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.fillStyle = agent.color;
+            ctx.fillRect(cx - sprite.width * scale / 2, cy - sprite.height * scale, sprite.width * scale, sprite.height * scale);
+            
+            ctx.restore();
+        }
+
+        // Draw agent
+        function drawAgent(agent) {
+            const pos = ISO.toScreen(agent.x, agent.y, 0);
+            const cx = canvas.width / 2 + pos.x;
+            const cy = canvas.height / 2 + pos.y;
+
+            // Highlight
+            if (agent.highlight) {
+                ctx.strokeStyle = agent.color;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 60, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Desk
+            drawDesk(agent.x, agent.y, agent);
+            
+            // Character sprite
+            drawCharacterSprite(agent);
+
+            // Working particles
+            if (agent.status === 'working' && Math.random() > 0.85) {
+                ctx.fillStyle = agent.color;
+                ctx.font = '20px Arial';
+                ctx.fillText('✨', cx + (Math.random() - 0.5) * 50, cy - 60 - Math.random() * 30);
+            }
+
+            // Name tag
+            ctx.fillStyle = 'rgba(0,0,0,0.85)';
+            ctx.font = '10px "Press Start 2P"';
+            const nameWidth = ctx.measureText(agent.name).width;
+            ctx.fillRect(cx - nameWidth / 2 - 8, cy - 100, nameWidth + 16, 20);
+            
+            ctx.fillStyle = agent.color;
+            ctx.textAlign = 'center';
+            ctx.fillText(agent.name, cx, cy - 84);
+
+            // Stats bar
+            const barWidth = 80;
+            const barHeight = 6;
+            ctx.fillStyle = 'rgba(0,0,0,0.85)';
+            ctx.fillRect(cx - barWidth/2, cy - 70, barWidth, barHeight);
+            
+            const progress = Math.min(1, (agent.tokens || 0) / 1000000);
+            const gradient = ctx.createLinearGradient(cx - barWidth/2, 0, cx + barWidth/2, 0);
+            gradient.addColorStop(0, agent.color);
+            gradient.addColorStop(1, '#fff');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(cx - barWidth/2, cy - 70, barWidth * progress, barHeight);
+        }
+
+        // Main render loop
+        function render() {
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawFloor();
+            
+            agents.forEach(agent => {
+                drawAgent(agent);
+            });
+
+            document.getElementById('time').textContent = new Date().toLocaleTimeString('ru-RU');
+
+            if (Math.random() > 0.98) {
+                updateAgentsPanel();
+            }
+
+            requestAnimationFrame(render);
+        }
+
+        // Initialize
+        loadData().then(() => {
+            render();
+        });
+    </script>
+</body>
+</html>
