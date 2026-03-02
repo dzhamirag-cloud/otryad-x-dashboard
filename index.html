@@ -82,13 +82,79 @@
   .stat-value.cost { color: #ffd60a; }
   .stat-value.time { color: #888; font-size: 7px; }
 
+  .main-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .agents-section {
+    flex: 1;
+  }
+
   .world {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 16px;
-    padding: 20px;
-    max-width: 1000px;
-    margin: 0 auto;
+  }
+  
+  .sidebar {
+    width: 350px;
+    flex-shrink: 0;
+  }
+  
+  .activity-feed {
+    background: linear-gradient(135deg, #1a1a3a 0%, #2a2a4a 100%);
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 15px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  
+  .activity-feed h3 {
+    font-size: 12px;
+    color: #00ff88;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+  }
+  
+  .activity-item {
+    padding: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-size: 8px;
+    color: #ccc;
+    border-left: 3px solid #00ff88;
+  }
+  
+  .activity-item .time {
+    color: #666;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .activity-item .agent-name {
+    color: #00ff88;
+    font-size: 9px;
+  }
+  
+  .mini-chart {
+    width: 100%;
+    height: 40px;
+    margin-top: 10px;
+  }
+  
+  @media (max-width: 1024px) {
+    .main-container {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+    }
   }
 
   .agent-card {
@@ -288,7 +354,18 @@
   </div>
 </div>
 
-<div class="world" id="agents-grid"></div>
+<div class="main-container">
+  <div class="agents-section">
+    <div class="world" id="agents-grid"></div>
+  </div>
+  
+  <div class="sidebar">
+    <div class="activity-feed">
+      <h3>📋 LIVE ACTIVITY</h3>
+      <div id="activity-list"></div>
+    </div>
+  </div>
+</div>
 
 <div class="footer">
   ОТРЯД X © 2026 — AI POWERED SQUAD DASHBOARD — AUTO-REFRESH 30s
@@ -334,6 +411,90 @@ function formatUptime(mins) {
   return h + 'ч ' + m + 'м';
 }
 
+const agentHistory = {};
+let activities = [];
+
+function trackActivity(agent) {
+  const prev = agentHistory[agent.id];
+  if (!prev) {
+    agentHistory[agent.id] = agent;
+    return;
+  }
+  
+  if (agent.tokens > prev.tokens) {
+    const delta = agent.tokens - prev.tokens;
+    activities.unshift({
+      time: new Date(),
+      agent: agent.name,
+      text: `использовал ${formatTokens(delta)} токенов`
+    });
+  }
+  
+  if (agent.costUsd > prev.costUsd) {
+    const delta = agent.costUsd - prev.costUsd;
+    activities.unshift({
+      time: new Date(),
+      agent: agent.name,
+      text: `потратил ${formatCost(delta)}`
+    });
+  }
+  
+  activities = activities.slice(0, 20);
+  agentHistory[agent.id] = agent;
+}
+
+function renderActivityFeed() {
+  const list = document.getElementById('activity-list');
+  if (activities.length === 0) {
+    list.innerHTML = '<div style="color:#666;font-size:8px;text-align:center;padding:20px;">Пока нет активности</div>';
+    return;
+  }
+  
+  list.innerHTML = activities.map(a => `
+    <div class="activity-item">
+      <span class="time">${a.time.toLocaleTimeString('ru-RU')}</span>
+      <span class="agent-name">${a.agent}</span> ${a.text}
+    </div>
+  `).join('');
+}
+
+function drawMiniChart(agentId, tokens) {
+  const canvas = document.getElementById(`chart-${agentId}`);
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  
+  ctx.clearRect(0, 0, w, h);
+  
+  const points = 20;
+  const values = Array(points).fill(0).map((_, i) => {
+    return Math.sin(i * 0.3) * (tokens / 20000) + (tokens / 10000);
+  });
+  
+  const maxVal = Math.max(...values, 1);
+  
+  ctx.strokeStyle = '#00ff88';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  
+  values.forEach((val, i) => {
+    const x = (i / (points - 1)) * w;
+    const y = h - (val * h / maxVal);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  
+  ctx.stroke();
+  
+  ctx.fillStyle = 'rgba(0,255,136,0.1)';
+  ctx.lineTo(w, h);
+  ctx.lineTo(0, h);
+  ctx.closePath();
+  ctx.fill();
+}
+
 function renderAvatar(agentId) {
   return AVATARS_SVG[agentId] || AVATARS_SVG.main;
 }
@@ -355,6 +516,8 @@ function renderBar(current, max, label, cls) {
 function renderAgents(data) {
   const grid = document.getElementById('agents-grid');
   grid.innerHTML = data.agents.map(a => {
+    trackActivity(a);
+    
     const avatar = renderAvatar(a.id);
     const statusClass = a.status === 'active' ? 'active' : 'idle';
     const taskStatusClass = a.status === 'active' ? 'working' : 'idle-status';
@@ -396,9 +559,18 @@ function renderAgents(data) {
           <span class="task-text">${a.lastTask}</span><br>
           <span class="task-status ${taskStatusClass}">${taskStatusText}</span>
         </div>
+        <canvas class="mini-chart" id="chart-${a.id}" width="300" height="40"></canvas>
       </div>
     `;
   }).join('');
+
+  // Draw charts
+  data.agents.forEach(a => {
+    drawMiniChart(a.id, a.tokens);
+  });
+  
+  // Update activity feed
+  renderActivityFeed();
 
   // Update stats bar
   document.getElementById('total-agents').textContent = data.totals.agents;
