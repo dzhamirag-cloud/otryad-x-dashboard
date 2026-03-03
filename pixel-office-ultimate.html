@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ ОТРЯД X — Ultimate Office</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);
+  color: #fff;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0,0,0,0.5);
+  border-bottom: 2px solid #3377ff;
+}
+
+.header h1 {
+  font-size: 20px;
+  color: #5ac8fa;
+  text-shadow: 0 0 10px #3377ff;
+}
+
+#viewport {
+  width: 100vw;
+  height: calc(100vh - 120px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: auto;
+}
+
+#pixel-canvas {
+  border: 4px solid #3377ff;
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(51,119,255,0.3);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.controls {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0,0,0,0.5);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.controls button {
+  background: #3377ff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 5px;
+}
+
+.controls button:hover {
+  background: #5ac8fa;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: #5ac8fa;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚔️ ОТРЯД X — ULTIMATE OFFICE ⚔️</h1>
+  <div style="font-size: 8px; color: #999; margin-top: 5px;">Full Furniture · Real Tileset · Animated Characters</div>
+</div>
+
+<div id="viewport">
+  <canvas id="pixel-canvas"></canvas>
+  <div id="loading" class="loading">Loading furniture...</div>
+</div>
+
+<div class="controls">
+  <button onclick="location.href='index.html'">← Dashboard</button>
+  <button onclick="zoom(1.5)">🔍 Zoom In</button>
+  <button onclick="zoom(1/1.5)">🔍 Zoom Out</button>
+  <button onclick="toggleAnimation()">⏸ Pause</button>
+</div>
+
+<script>
+const canvas = document.getElementById('pixel-canvas');
+const ctx = canvas.getContext('2d');
+
+const TILE_SIZE = 16;
+const CHAR_WIDTH = 16;
+const CHAR_HEIGHT = 32;
+const FRAMES_PER_ROW = 7;
+
+// Furniture tileset (16x16 grid, ~20 columns)
+const FURNITURE_COLS = 20;
+
+let furnitureImg = null;
+let characterSprites = {};
+let agents = [];
+let animFrame = 0;
+let isPaused = false;
+let currentZoom = 3;
+let assetsReady = false;
+let spritesLoaded = 0;
+
+// Simple office layout (21x21 grid)
+const OFFICE_WIDTH = 21;
+const OFFICE_HEIGHT = 21;
+
+// Agent positions
+const AGENTS = {
+  main: { charIndex: 0, color: '#3377ff', name: 'Кайро', emoji: '🤖', x: 5, y: 5 },
+  marketer: { charIndex: 1, color: '#ff9500', name: 'Марк', emoji: '📈', x: 15, y: 5 },
+  brandman: { charIndex: 2, color: '#ff375f', name: 'Бренд', emoji: '🎯', x: 5, y: 15 },
+  cfo: { charIndex: 3, color: '#ffd60a', name: 'Фин', emoji: '💰', x: 15, y: 15 },
+  techlead: { charIndex: 4, color: '#5ac8fa', name: 'Текна', emoji: '⚙️', x: 10, y: 8 },
+  strategist: { charIndex: 5, color: '#bf5af2', name: 'Прайм', emoji: '🧠', x: 10, y: 12 }
+};
+
+// Furniture layout - simple office with desks
+// Each desk position: [gridX, gridY, furnitureTileX, furnitureTileY]
+const FURNITURE = [
+  // Кайро desk (top-left)
+  [4, 4, 0, 0], [5, 4, 1, 0], // desk
+  [4, 5, 0, 1], [5, 5, 1, 1],
+  [5, 3, 3, 0], // computer
+  [4, 3, 2, 2], // chair
+  
+  // Марк desk (top-right)
+  [14, 4, 0, 0], [15, 4, 1, 0],
+  [14, 5, 0, 1], [15, 5, 1, 1],
+  [15, 3, 3, 0],
+  [14, 3, 2, 2],
+  
+  // Бренд desk (bottom-left)
+  [4, 14, 0, 0], [5, 14, 1, 0],
+  [4, 15, 0, 1], [5, 15, 1, 1],
+  [5, 13, 3, 0],
+  [4, 13, 2, 2],
+  
+  // Фин desk (bottom-right)
+  [14, 14, 0, 0], [15, 14, 1, 0],
+  [14, 15, 0, 1], [15, 15, 1, 1],
+  [15, 13, 3, 0],
+  [14, 13, 2, 2],
+  
+  // Текна desk (center-top)
+  [9, 7, 0, 0], [10, 7, 1, 0],
+  [9, 8, 0, 1], [10, 8, 1, 1],
+  [10, 6, 3, 0],
+  [9, 6, 2, 2],
+  
+  // Прайм desk (center-bottom)
+  [9, 11, 0, 0], [10, 11, 1, 0],
+  [9, 12, 0, 1], [10, 12, 1, 1],
+  [10, 10, 3, 0],
+  [9, 10, 2, 2],
+  
+  // Plants
+  [1, 1, 8, 2],
+  [18, 1, 8, 2],
+  [1, 18, 8, 2],
+  [18, 18, 8, 2],
+  
+  // Water cooler
+  [10, 18, 10, 4]
+];
+
+canvas.width = OFFICE_WIDTH * TILE_SIZE * currentZoom;
+canvas.height = OFFICE_HEIGHT * TILE_SIZE * currentZoom;
+
+// Load furniture tileset
+function loadFurniture() {
+  furnitureImg = new Image();
+  furnitureImg.onload = () => {
+    console.log('Furniture loaded');
+    checkAssetsReady();
+  };
+  furnitureImg.src = 'furniture.png';
+}
+
+// Load character sprites
+function loadSprites() {
+  for (let i = 0; i < 6; i++) {
+    const img = new Image();
+    img.onload = () => {
+      spritesLoaded++;
+      if (spritesLoaded === 6) checkAssetsReady();
+    };
+    img.src = `characters/char_${i}.png`;
+    characterSprites[i] = img;
+  }
+}
+
+function checkAssetsReady() {
+  if (furnitureImg && furnitureImg.complete && spritesLoaded === 6) {
+    assetsReady = true;
+    document.getElementById('loading').style.display = 'none';
+    render();
+  }
+}
+
+// Draw floor
+function drawFloor() {
+  ctx.fillStyle = '#4a4a5a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Grid
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x < OFFICE_WIDTH; x++) {
+    for (let y = 0; y < OFFICE_HEIGHT; y++) {
+      const px = x * TILE_SIZE * currentZoom;
+      const py = y * TILE_SIZE * currentZoom;
+      const size = TILE_SIZE * currentZoom;
+      ctx.strokeRect(px, py, size, size);
+    }
+  }
+}
+
+// Draw furniture tile
+function drawFurnitureTile(gridX, gridY, tileX, tileY) {
+  if (!furnitureImg || !furnitureImg.complete) return;
+  
+  const px = gridX * TILE_SIZE * currentZoom;
+  const py = gridY * TILE_SIZE * currentZoom;
+  const size = TILE_SIZE * currentZoom;
+  
+  ctx.drawImage(
+    furnitureImg,
+    tileX * TILE_SIZE, tileY * TILE_SIZE, TILE_SIZE, TILE_SIZE,
+    px, py, size, size
+  );
+}
+
+// Draw character
+function drawCharacter(gridX, gridY, charIndex, isActive) {
+  const sprite = characterSprites[charIndex];
+  if (!sprite || !sprite.complete) return;
+  
+  const animSpeed = isActive ? 6 : 12;
+  const frameIndex = Math.floor(animFrame / animSpeed) % FRAMES_PER_ROW;
+  
+  const x = (gridX * TILE_SIZE + TILE_SIZE / 2) * currentZoom;
+  const y = (gridY * TILE_SIZE + TILE_SIZE / 2) * currentZoom;
+  
+  const scale = 2 * currentZoom;
+  ctx.drawImage(
+    sprite,
+    frameIndex * CHAR_WIDTH, 0, CHAR_WIDTH, CHAR_HEIGHT,
+    x - (CHAR_WIDTH * scale) / 2, y - (CHAR_HEIGHT * scale) / 2,
+    CHAR_WIDTH * scale, CHAR_HEIGHT * scale
+  );
+  
+  // Status
+  if (isActive) {
+    ctx.fillStyle = '#34c759';
+    const barW = 16 * currentZoom;
+    const barH = 4 * currentZoom;
+    const barY = y - 40 * currentZoom;
+    ctx.fillRect(x - barW/2, barY, barW, barH);
+  }
+  
+  // Name tag
+  ctx.font = `${8 * currentZoom}px "Press Start 2P"`;
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  const config = Object.values(AGENTS).find(a => a.charIndex === charIndex);
+  if (config) {
+    ctx.fillText(`${config.emoji}`, x, y + 35 * currentZoom);
+  }
+}
+
+// Render
+function render() {
+  if (!assetsReady || isPaused) {
+    requestAnimationFrame(render);
+    return;
+  }
+  
+  // Clear
+  drawFloor();
+  
+  // Draw furniture
+  FURNITURE.forEach(([gx, gy, tx, ty]) => {
+    drawFurnitureTile(gx, gy, tx, ty);
+  });
+  
+  // Draw agents
+  agents.forEach(agent => {
+    const config = AGENTS[agent.id];
+    if (!config) return;
+    const isActive = agent.status === 'active';
+    drawCharacter(config.x, config.y, config.charIndex, isActive);
+  });
+  
+  animFrame++;
+  requestAnimationFrame(render);
+}
+
+// Load data
+async function loadData() {
+  try {
+    const res = await fetch('data.json');
+    const data = await res.json();
+    agents = data.agents;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function zoom(factor) {
+  currentZoom *= factor;
+  if (currentZoom < 1) currentZoom = 1;
+  if (currentZoom > 6) currentZoom = 6;
+  canvas.width = OFFICE_WIDTH * TILE_SIZE * currentZoom;
+  canvas.height = OFFICE_HEIGHT * TILE_SIZE * currentZoom;
+}
+
+function toggleAnimation() {
+  isPaused = !isPaused;
+}
+
+loadFurniture();
+loadSprites();
+loadData();
+setInterval(loadData, 10000);
+</script>
+
+</body>
+</html>
