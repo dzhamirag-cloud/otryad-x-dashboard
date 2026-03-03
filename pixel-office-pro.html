@@ -265,7 +265,7 @@ function drawCharacter(col, row, charIndex, isActive) {
   const x = (col * TILE_SIZE + TILE_SIZE / 2) * currentZoom;
   const y = (row * TILE_SIZE + TILE_SIZE / 2) * currentZoom;
   
-  const scale = 2 * currentZoom;
+  const scale = 1 * currentZoom; // Уменьшил с 2 до 1
   ctx.drawImage(
     sprite,
     frameIndex * CHAR_WIDTH, 0, CHAR_WIDTH, CHAR_HEIGHT,
@@ -276,18 +276,18 @@ function drawCharacter(col, row, charIndex, isActive) {
   // Status indicator
   if (isActive) {
     ctx.fillStyle = '#34c759';
-    const barW = 16 * currentZoom;
-    const barH = 4 * currentZoom;
-    ctx.fillRect(x - barW/2, y - 40 * currentZoom, barW, barH);
+    const barW = 12 * currentZoom;
+    const barH = 3 * currentZoom;
+    ctx.fillRect(x - barW/2, y - 20 * currentZoom, barW, barH);
   }
   
   // Name tag
   const config = Object.values(AGENTS).find(a => a.charIndex === charIndex);
   if (config) {
-    ctx.font = `${7 * currentZoom}px "Press Start 2P"`;
+    ctx.font = `${6 * currentZoom}px "Press Start 2P"`;
     ctx.fillStyle = config.color;
     ctx.textAlign = 'center';
-    ctx.fillText(config.emoji, x, y + 32 * currentZoom);
+    ctx.fillText(config.emoji, x, y + 18 * currentZoom);
   }
 }
 
