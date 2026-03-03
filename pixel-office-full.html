@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ ОТРЯД X — Full Pixel Office</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);
+  color: #fff;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0,0,0,0.5);
+  border-bottom: 2px solid #3377ff;
+}
+
+.header h1 {
+  font-size: 20px;
+  color: #5ac8fa;
+  text-shadow: 0 0 10px #3377ff;
+}
+
+#viewport {
+  width: 100vw;
+  height: calc(100vh - 120px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+#pixel-canvas {
+  border: 4px solid #3377ff;
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(51,119,255,0.3);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.controls {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0,0,0,0.5);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.controls button {
+  background: #3377ff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 5px;
+}
+
+.controls button:hover {
+  background: #5ac8fa;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: #5ac8fa;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚔️ ОТРЯД X — FULL PIXEL OFFICE ⚔️</h1>
+  <div style="font-size: 8px; color: #999; margin-top: 5px;">Original Pixel Agents Layout · Real Character Sprites · Live Updates</div>
+</div>
+
+<div id="viewport">
+  <canvas id="pixel-canvas"></canvas>
+  <div id="loading" class="loading">Loading office...</div>
+</div>
+
+<div class="controls">
+  <button onclick="location.href='index.html'">← Grid Dashboard</button>
+  <button onclick="zoom(1.5)">🔍 Zoom In</button>
+  <button onclick="zoom(1/1.5)">🔍 Zoom Out</button>
+  <button onclick="toggleAnimation()">⏸ Pause</button>
+</div>
+
+<script>
+const canvas = document.getElementById('pixel-canvas');
+const ctx = canvas.getContext('2d');
+
+const TILE_SIZE = 16;
+const CHAR_WIDTH = 16;
+const CHAR_HEIGHT = 32;
+const FRAMES_PER_ROW = 7;
+
+let layout = null;
+let wallsImg = null;
+let characterSprites = {};
+let agents = [];
+let animFrame = 0;
+let isPaused = false;
+let currentZoom = 2;
+let spritesLoaded = 0;
+let assetsReady = false;
+
+// Agent config
+const AGENTS = {
+  main: { charIndex: 0, color: '#3377ff', name: 'Кайро', emoji: '🤖', seat: {x: 5, y: 5} },
+  marketer: { charIndex: 1, color: '#ff9500', name: 'Марк', emoji: '📈', seat: {x: 15, y: 5} },
+  brandman: { charIndex: 2, color: '#ff375f', name: 'Бренд', emoji: '🎯', seat: {x: 5, y: 15} },
+  cfo: { charIndex: 3, color: '#ffd60a', name: 'Фин', emoji: '💰', seat: {x: 15, y: 15} },
+  techlead: { charIndex: 4, color: '#5ac8fa', name: 'Текна', emoji: '⚙️', seat: {x: 10, y: 8} },
+  strategist: { charIndex: 5, color: '#bf5af2', name: 'Прайм', emoji: '🧠', seat: {x: 10, y: 12} }
+};
+
+// Floor colors for different patterns
+const FLOOR_COLORS = [
+  '#2a2a3a', // 0: wall/empty
+  '#4a4a5a', // 1: dark floor
+  '#5a5a6a', // 2: medium floor
+  '#6a6a7a', // 3: light floor  
+  '#3a4a5a', // 4: blue tint
+  '#5a4a3a', // 5: brown tint
+  '#4a5a4a', // 6: green tint
+  '#5a3a4a', // 7: purple tint
+  '#2a2a3a'  // 8: dark (fallback)
+];
+
+// Load layout
+async function loadLayout() {
+  const res = await fetch('default-layout.json');
+  layout = await res.json();
+  console.log(`Layout loaded: ${layout.cols}x${layout.rows}`);
+  canvas.width = layout.cols * TILE_SIZE * currentZoom;
+  canvas.height = layout.rows * TILE_SIZE * currentZoom;
+  checkAssetsReady();
+}
+
+// Load walls
+function loadWalls() {
+  wallsImg = new Image();
+  wallsImg.onload = () => {
+    console.log('Walls loaded');
+    checkAssetsReady();
+  };
+  wallsImg.src = 'walls.png';
+}
+
+// Load character sprites
+function loadSprites() {
+  for (let i = 0; i < 6; i++) {
+    const img = new Image();
+    img.onload = () => {
+      spritesLoaded++;
+      console.log(`Char ${i} loaded (${spritesLoaded}/6)`);
+      if (spritesLoaded === 6) checkAssetsReady();
+    };
+    img.src = `characters/char_${i}.png`;
+    characterSprites[i] = img;
+  }
+}
+
+function checkAssetsReady() {
+  if (layout && wallsImg && wallsImg.complete && spritesLoaded === 6) {
+    assetsReady = true;
+    document.getElementById('loading').style.display = 'none';
+    console.log('All assets ready!');
+    render();
+  }
+}
+
+// Draw floor tile
+function drawFloorTile(gridX, gridY, patternIndex) {
+  const x = gridX * TILE_SIZE * currentZoom;
+  const y = gridY * TILE_SIZE * currentZoom;
+  const size = TILE_SIZE * currentZoom;
+  
+  ctx.fillStyle = FLOOR_COLORS[patternIndex] || FLOOR_COLORS[0];
+  ctx.fillRect(x, y, size, size);
+  
+  // Subtle grid
+  ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x, y, size, size);
+}
+
+// Draw wall tile (simplified - just color blocks for now)
+function drawWallTile(gridX, gridY) {
+  const x = gridX * TILE_SIZE * currentZoom;
+  const y = gridY * TILE_SIZE * currentZoom;
+  const size = TILE_SIZE * currentZoom;
+  
+  ctx.fillStyle = '#1a1a2a';
+  ctx.fillRect(x, y, size, size);
+  
+  // Border
+  ctx.strokeStyle = '#3a3a4a';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, size, size);
+}
+
+// Draw character
+function drawCharacter(gridX, gridY, charIndex, isActive, frame) {
+  const sprite = characterSprites[charIndex];
+  if (!sprite || !sprite.complete) return;
+  
+  const animSpeed = isActive ? 6 : 12;
+  const frameIndex = Math.floor(frame / animSpeed) % FRAMES_PER_ROW;
+  
+  const srcX = frameIndex * CHAR_WIDTH;
+  const srcY = 0; // Down direction
+  
+  const x = (gridX * TILE_SIZE + TILE_SIZE / 2) * currentZoom;
+  const y = (gridY * TILE_SIZE + TILE_SIZE / 2) * currentZoom;
+  
+  const scale = 2 * currentZoom;
+  ctx.drawImage(
+    sprite,
+    srcX, srcY, CHAR_WIDTH, CHAR_HEIGHT,
+    x - (CHAR_WIDTH * scale) / 2, y - (CHAR_HEIGHT * scale) / 2,
+    CHAR_WIDTH * scale, CHAR_HEIGHT * scale
+  );
+  
+  // Status
+  if (isActive) {
+    ctx.fillStyle = '#34c759';
+    ctx.fillRect(x - 8 * currentZoom, y - 40 * currentZoom, 16 * currentZoom, 4 * currentZoom);
+  }
+}
+
+// Render office
+function render() {
+  if (!assetsReady || isPaused) {
+    requestAnimationFrame(render);
+    return;
+  }
+  
+  // Clear
+  ctx.fillStyle = '#0a0a1a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw layout
+  for (let row = 0; row < layout.rows; row++) {
+    for (let col = 0; col < layout.cols; col++) {
+      const tileIndex = layout.tiles[row * layout.cols + col];
+      
+      if (tileIndex === 0) {
+        // Wall
+        drawWallTile(col, row);
+      } else {
+        // Floor
+        drawFloorTile(col, row, tileIndex);
+      }
+    }
+  }
+  
+  // Draw agents
+  agents.forEach(agent => {
+    const config = AGENTS[agent.id];
+    if (!config) return;
+    
+    const isActive = agent.status === 'active';
+    drawCharacter(config.seat.x, config.seat.y, config.charIndex, isActive, animFrame);
+  });
+  
+  animFrame++;
+  requestAnimationFrame(render);
+}
+
+// Load agents data
+async function loadData() {
+  try {
+    const res = await fetch('data.json');
+    const data = await res.json();
+    agents = data.agents;
+  } catch (e) {
+    console.error('Failed to load data:', e);
+  }
+}
+
+function zoom(factor) {
+  currentZoom *= factor;
+  if (currentZoom < 1) currentZoom = 1;
+  if (currentZoom > 4) currentZoom = 4;
+  if (layout) {
+    canvas.width = layout.cols * TILE_SIZE * currentZoom;
+    canvas.height = layout.rows * TILE_SIZE * currentZoom;
+  }
+}
+
+function toggleAnimation() {
+  isPaused = !isPaused;
+}
+
+// Init
+loadLayout();
+loadWalls();
+loadSprites();
+loadData();
+setInterval(loadData, 10000);
+</script>
+
+</body>
+</html>
