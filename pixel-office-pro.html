@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ ОТРЯД X — Professional Office</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);
+  color: #fff;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 15px;
+  background: rgba(0,0,0,0.5);
+  border-bottom: 2px solid #3377ff;
+}
+
+.header h1 {
+  font-size: 18px;
+  color: #5ac8fa;
+  text-shadow: 0 0 10px #3377ff;
+}
+
+#viewport {
+  width: 100vw;
+  height: calc(100vh - 110px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: auto;
+  background: #1a1a2a;
+}
+
+#pixel-canvas {
+  border: 4px solid #3377ff;
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(51,119,255,0.3);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.controls {
+  text-align: center;
+  padding: 12px;
+  background: rgba(0,0,0,0.5);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.controls button {
+  background: #3377ff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 7px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 3px;
+}
+
+.controls button:hover {
+  background: #5ac8fa;
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  color: #5ac8fa;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚔️ ОТРЯД X — PROFESSIONAL OFFICE ⚔️</h1>
+  <div style="font-size: 7px; color: #999; margin-top: 5px;">Original Pixel Agents Layout · 56 Furniture Items · Animated</div>
+</div>
+
+<div id="viewport">
+  <canvas id="pixel-canvas"></canvas>
+  <div id="loading" class="loading">Loading office layout...<br><span style="font-size:10px;" id="progress">0%</span></div>
+</div>
+
+<div class="controls">
+  <button onclick="location.href='index.html'">← Dashboard</button>
+  <button onclick="zoom(1.5)">🔍 Zoom In</button>
+  <button onclick="zoom(1/1.5)">🔍 Zoom Out</button>
+  <button onclick="resetView()">🎯 Reset</button>
+  <button onclick="toggleAnimation()">⏸ Pause</button>
+</div>
+
+<script>
+const canvas = document.getElementById('pixel-canvas');
+const ctx = canvas.getContext('2d');
+
+const TILE_SIZE = 16;
+const CHAR_WIDTH = 16;
+const CHAR_HEIGHT = 32;
+const FRAMES_PER_ROW = 7;
+
+let layout = null;
+let furnitureImg = null;
+let characterSprites = {};
+let agents = [];
+let animFrame = 0;
+let isPaused = false;
+let currentZoom = 3;
+let assetsReady = false;
+let spritesLoaded = 0;
+
+// Agent config with seat positions (will place in nice spots)
+const AGENTS = {
+  main: { charIndex: 0, color: '#3377ff', name: 'Кайро', emoji: '🤖', seat: null },
+  marketer: { charIndex: 1, color: '#ff9500', name: 'Марк', emoji: '📈', seat: null },
+  brandman: { charIndex: 2, color: '#ff375f', name: 'Бренд', emoji: '🎯', seat: null },
+  cfo: { charIndex: 3, color: '#ffd60a', name: 'Фин', emoji: '💰', seat: null },
+  techlead: { charIndex: 4, color: '#5ac8fa', name: 'Текна', emoji: '⚙️', seat: null },
+  strategist: { charIndex: 5, color: '#bf5af2', name: 'Прайм', emoji: '🧠', seat: null }
+};
+
+// Auto-assign seats (will distribute agents across walkable floor)
+function autoAssignSeats() {
+  const walkableSpots = [];
+  for (let row = 0; row < layout.rows; row++) {
+    for (let col = 0; col < layout.cols; col++) {
+      const tileType = layout.tiles[row * layout.cols + col];
+      if (tileType > 0 && tileType < 8) { // Floor tiles
+        // Check if not blocked by furniture
+        const hasFurniture = layout.furniture.some(f => f.col === col && f.row === row);
+        if (!hasFurniture) {
+          walkableSpots.push({col, row});
+        }
+      }
+    }
+  }
+  
+  // Pick 6 spots spread out
+  const seats = [
+    walkableSpots[Math.floor(walkableSpots.length * 0.15)],
+    walkableSpots[Math.floor(walkableSpots.length * 0.30)],
+    walkableSpots[Math.floor(walkableSpots.length * 0.45)],
+    walkableSpots[Math.floor(walkableSpots.length * 0.60)],
+    walkableSpots[Math.floor(walkableSpots.length * 0.75)],
+    walkableSpots[Math.floor(walkableSpots.length * 0.90)]
+  ];
+  
+  const agentIds = Object.keys(AGENTS);
+  seats.forEach((seat, i) => {
+    if (seat && agentIds[i]) {
+      AGENTS[agentIds[i]].seat = seat;
+    }
+  });
+}
+
+// Floor colors (matching Pixel Agents palette)
+const FLOOR_COLORS = {
+  0: '#2a2a3a', // wall
+  1: '#4a4a5a',
+  2: '#5a5a6a',
+  3: '#6a6a7a',
+  4: '#3a4a5a',
+  5: '#5a4a3a',
+  6: '#4a5a4a',
+  7: '#5a3a4a',
+  8: '#2a2a3a'
+};
+
+async function loadLayout() {
+  const res = await fetch('default-layout.json');
+  layout = await res.json();
+  console.log(`Layout: ${layout.cols}x${layout.rows}, ${layout.furniture.length} furniture`);
+  canvas.width = layout.cols * TILE_SIZE * currentZoom;
+  canvas.height = layout.rows * TILE_SIZE * currentZoom;
+  autoAssignSeats();
+  checkAssetsReady();
+}
+
+function loadFurniture() {
+  furnitureImg = new Image();
+  furnitureImg.onload = () => {
+    console.log('Furniture tileset loaded');
+    checkAssetsReady();
+  };
+  furnitureImg.src = 'furniture.png';
+}
+
+function loadSprites() {
+  for (let i = 0; i < 6; i++) {
+    const img = new Image();
+    img.onload = () => {
+      spritesLoaded++;
+      document.getElementById('progress').textContent = 
+        Math.floor((spritesLoaded / 6) * 100) + '%';
+      if (spritesLoaded === 6) checkAssetsReady();
+    };
+    img.src = `characters/char_${i}.png`;
+    characterSprites[i] = img;
+  }
+}
+
+function checkAssetsReady() {
+  if (layout && furnitureImg && furnitureImg.complete && spritesLoaded === 6) {
+    assetsReady = true;
+    document.getElementById('loading').style.display = 'none';
+    console.log('All assets ready - rendering!');
+    render();
+  }
+}
+
+function drawFloorTile(col, row, tileType) {
+  const x = col * TILE_SIZE * currentZoom;
+  const y = row * TILE_SIZE * currentZoom;
+  const size = TILE_SIZE * currentZoom;
+  
+  ctx.fillStyle = FLOOR_COLORS[tileType] || FLOOR_COLORS[0];
+  ctx.fillRect(x, y, size, size);
+  
+  if (tileType > 0) {
+    ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, size, size);
+  }
+}
+
+function drawFurniture(furniture) {
+  if (!furnitureImg || !furnitureImg.complete) return;
+  
+  // Extract asset number from type (ASSET_40 -> 40)
+  const assetNum = parseInt(furniture.type.replace('ASSET_', ''));
+  
+  // Furniture tileset is ~20 columns wide
+  const COLS = 20;
+  const srcCol = assetNum % COLS;
+  const srcRow = Math.floor(assetNum / COLS);
+  
+  const x = furniture.col * TILE_SIZE * currentZoom;
+  const y = furniture.row * TILE_SIZE * currentZoom;
+  const size = TILE_SIZE * currentZoom;
+  
+  ctx.drawImage(
+    furnitureImg,
+    srcCol * TILE_SIZE, srcRow * TILE_SIZE, TILE_SIZE, TILE_SIZE,
+    x, y, size, size
+  );
+}
+
+function drawCharacter(col, row, charIndex, isActive) {
+  const sprite = characterSprites[charIndex];
+  if (!sprite || !sprite.complete) return;
+  
+  const animSpeed = isActive ? 6 : 12;
+  const frameIndex = Math.floor(animFrame / animSpeed) % FRAMES_PER_ROW;
+  
+  const x = (col * TILE_SIZE + TILE_SIZE / 2) * currentZoom;
+  const y = (row * TILE_SIZE + TILE_SIZE / 2) * currentZoom;
+  
+  const scale = 2 * currentZoom;
+  ctx.drawImage(
+    sprite,
+    frameIndex * CHAR_WIDTH, 0, CHAR_WIDTH, CHAR_HEIGHT,
+    x - (CHAR_WIDTH * scale) / 2, y - (CHAR_HEIGHT * scale) / 2,
+    CHAR_WIDTH * scale, CHAR_HEIGHT * scale
+  );
+  
+  // Status indicator
+  if (isActive) {
+    ctx.fillStyle = '#34c759';
+    const barW = 16 * currentZoom;
+    const barH = 4 * currentZoom;
+    ctx.fillRect(x - barW/2, y - 40 * currentZoom, barW, barH);
+  }
+  
+  // Name tag
+  const config = Object.values(AGENTS).find(a => a.charIndex === charIndex);
+  if (config) {
+    ctx.font = `${7 * currentZoom}px "Press Start 2P"`;
+    ctx.fillStyle = config.color;
+    ctx.textAlign = 'center';
+    ctx.fillText(config.emoji, x, y + 32 * currentZoom);
+  }
+}
+
+function render() {
+  if (!assetsReady || isPaused) {
+    requestAnimationFrame(render);
+    return;
+  }
+  
+  // Draw floors
+  for (let row = 0; row < layout.rows; row++) {
+    for (let col = 0; col < layout.cols; col++) {
+      const tileType = layout.tiles[row * layout.cols + col];
+      drawFloorTile(col, row, tileType);
+    }
+  }
+  
+  // Draw furniture
+  layout.furniture.forEach(f => drawFurniture(f));
+  
+  // Draw agents
+  agents.forEach(agent => {
+    const config = AGENTS[agent.id];
+    if (!config || !config.seat) return;
+    const isActive = agent.status === 'active';
+    drawCharacter(config.seat.col, config.seat.row, config.charIndex, isActive);
+  });
+  
+  animFrame++;
+  requestAnimationFrame(render);
+}
+
+async function loadData() {
+  try {
+    const res = await fetch('data.json');
+    const data = await res.json();
+    agents = data.agents;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function zoom(factor) {
+  currentZoom *= factor;
+  if (currentZoom < 1) currentZoom = 1;
+  if (currentZoom > 6) currentZoom = 6;
+  if (layout) {
+    canvas.width = layout.cols * TILE_SIZE * currentZoom;
+    canvas.height = layout.rows * TILE_SIZE * currentZoom;
+  }
+}
+
+function resetView() {
+  currentZoom = 3;
+  if (layout) {
+    canvas.width = layout.cols * TILE_SIZE * currentZoom;
+    canvas.height = layout.rows * TILE_SIZE * currentZoom;
+  }
+}
+
+function toggleAnimation() {
+  isPaused = !isPaused;
+}
+
+loadLayout();
+loadFurniture();
+loadSprites();
+loadData();
+setInterval(loadData, 10000);
+</script>
+
+</body>
+</html>
