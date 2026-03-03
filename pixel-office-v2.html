@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ ОТРЯД X — Pixel Office v2</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);
+  color: #fff;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.5);
+  border-bottom: 2px solid #3377ff;
+}
+
+.header h1 {
+  font-size: 24px;
+  color: #5ac8fa;
+  text-shadow: 0 0 10px #3377ff;
+}
+
+.office-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 600px;
+  padding: 40px 20px;
+}
+
+#pixel-canvas {
+  border: 4px solid #3377ff;
+  border-radius: 8px;
+  background: #2a2a3a;
+  box-shadow: 0 0 30px rgba(51,119,255,0.3);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.stats-panel {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background: rgba(0,0,0,0.5);
+  border: 2px solid #3377ff;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.agent-stat {
+  background: linear-gradient(135deg, #1a1a3a 0%, #2a2a4a 100%);
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid;
+}
+
+.agent-stat h3 {
+  font-size: 10px;
+  margin-bottom: 10px;
+}
+
+.agent-stat .detail {
+  font-size: 8px;
+  color: #999;
+  margin: 5px 0;
+}
+
+.agent-stat .status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 7px;
+  margin-top: 5px;
+}
+
+.status.active {
+  background: #34c759;
+  color: #000;
+}
+
+.status.idle {
+  background: #666;
+  color: #fff;
+}
+
+.controls {
+  text-align: center;
+  padding: 20px;
+}
+
+.controls button {
+  background: #3377ff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 5px;
+}
+
+.controls button:hover {
+  background: #5ac8fa;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 7px;
+  color: #666;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚔️ ОТРЯД X — PIXEL OFFICE v2 ⚔️</h1>
+  <div style="font-size: 8px; color: #999; margin-top: 10px;">Real Character Sprites · Animated · Live Updates</div>
+</div>
+
+<div class="office-container">
+  <canvas id="pixel-canvas" width="800" height="600"></canvas>
+</div>
+
+<div class="stats-panel" id="stats"></div>
+
+<div class="controls">
+  <button onclick="location.href='index.html'">← Back to Grid Dashboard</button>
+  <button onclick="toggleAnimation()">⏸ Pause Animation</button>
+</div>
+
+<div class="footer">
+  ОТРЯД X © 2026 — PIXEL OFFICE v2.0 — Real Sprites from Metro City
+</div>
+
+<script>
+const canvas = document.getElementById('pixel-canvas');
+const ctx = canvas.getContext('2d');
+
+// Character sprite images (16x32 each, 7 frames per animation)
+const characterSprites = {};
+const CHAR_WIDTH = 16;
+const CHAR_HEIGHT = 32;
+const FRAMES_PER_ROW = 7;
+
+// Agent configuration
+const AGENTS = {
+  main: { charIndex: 0, color: '#3377ff', name: 'Кайро', emoji: '🤖' },
+  marketer: { charIndex: 1, color: '#ff9500', name: 'Марк', emoji: '📈' },
+  brandman: { charIndex: 2, color: '#ff375f', name: 'Бренд', emoji: '🎯' },
+  cfo: { charIndex: 3, color: '#ffd60a', name: 'Фин', emoji: '💰' },
+  techlead: { charIndex: 4, color: '#5ac8fa', name: 'Текна', emoji: '⚙️' },
+  strategist: { charIndex: 5, color: '#bf5af2', name: 'Прайм', emoji: '🧠' }
+};
+
+// Agent positions in office
+const POSITIONS = {
+  main: { x: 200, y: 200 },
+  marketer: { x: 400, y: 200 },
+  brandman: { x: 600, y: 200 },
+  cfo: { x: 200, y: 400 },
+  techlead: { x: 400, y: 400 },
+  strategist: { x: 600, y: 400 }
+};
+
+let agents = [];
+let animFrame = 0;
+let isPaused = false;
+let spritesLoaded = 0;
+
+// Load character sprites
+function loadSprites() {
+  for (let i = 0; i < 6; i++) {
+    const img = new Image();
+    img.onload = () => {
+      spritesLoaded++;
+      if (spritesLoaded === 6) {
+        console.log('All sprites loaded!');
+        render();
+      }
+    };
+    img.src = `characters/char_${i}.png`;
+    characterSprites[i] = img;
+  }
+}
+
+// Draw character sprite
+function drawCharacter(x, y, charIndex, isActive, frame) {
+  const sprite = characterSprites[charIndex];
+  if (!sprite || !sprite.complete) return;
+  
+  // Animation frame (0-6)
+  // Row 0: down, Row 1: up, Row 2: right
+  const animSpeed = isActive ? 8 : 16;
+  const frameIndex = Math.floor(frame / animSpeed) % FRAMES_PER_ROW;
+  
+  // Use "down" direction (row 0) for idle/typing
+  const srcX = frameIndex * CHAR_WIDTH;
+  const srcY = 0; // Down direction
+  
+  // Draw scaled up 2x
+  const scale = 2;
+  ctx.drawImage(
+    sprite,
+    srcX, srcY, CHAR_WIDTH, CHAR_HEIGHT,
+    x - (CHAR_WIDTH * scale) / 2, y - (CHAR_HEIGHT * scale) / 2,
+    CHAR_WIDTH * scale, CHAR_HEIGHT * scale
+  );
+  
+  // Status indicator
+  if (isActive) {
+    ctx.fillStyle = '#34c759';
+    ctx.fillRect(x - 8, y - 40, 16, 4);
+    ctx.font = '12px Arial';
+    ctx.fillText('⚙️', x - 6, y - 42);
+  }
+}
+
+// Draw desk
+function drawDesk(x, y, color) {
+  // Desktop
+  ctx.fillStyle = '#3a3a4a';
+  ctx.fillRect(x - 40, y + 20, 80, 40);
+  
+  // Border
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x - 40, y + 20, 80, 40);
+  
+  // Monitor
+  ctx.fillStyle = '#1a1a2a';
+  ctx.fillRect(x - 20, y - 10, 40, 30);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x - 20, y - 10, 40, 30);
+  
+  // Screen glow
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.3;
+  ctx.fillRect(x - 18, y - 8, 36, 26);
+  ctx.globalAlpha = 1.0;
+}
+
+// Draw name tag
+function drawNameTag(x, y, name, emoji, color) {
+  ctx.font = '10px "Press Start 2P"';
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.fillText(`${emoji} ${name}`, x, y + 45);
+}
+
+// Render office
+function render() {
+  if (isPaused || !agents.length) {
+    requestAnimationFrame(render);
+    return;
+  }
+  
+  // Clear
+  ctx.fillStyle = '#2a2a3a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Floor grid
+  ctx.strokeStyle = '#3a3a4a';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < canvas.width; i += 50) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, canvas.height);
+    ctx.stroke();
+  }
+  for (let i = 0; i < canvas.height; i += 50) {
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(canvas.width, i);
+    ctx.stroke();
+  }
+  
+  // Title
+  ctx.font = '16px "Press Start 2P"';
+  ctx.fillStyle = '#5ac8fa';
+  ctx.textAlign = 'center';
+  ctx.fillText('PIXEL OFFICE v2', canvas.width / 2, 30);
+  
+  // Draw each agent
+  agents.forEach(agent => {
+    const config = AGENTS[agent.id];
+    const pos = POSITIONS[agent.id];
+    if (!config || !pos) return;
+    
+    const isActive = agent.status === 'active';
+    
+    // Draw desk
+    drawDesk(pos.x, pos.y, config.color);
+    
+    // Draw character sprite
+    drawCharacter(pos.x, pos.y, config.charIndex, isActive, animFrame);
+    
+    // Draw name
+    drawNameTag(pos.x, pos.y, config.name, config.emoji, config.color);
+  });
+  
+  animFrame++;
+  requestAnimationFrame(render);
+}
+
+// Update stats panel
+function updateStats() {
+  const statsEl = document.getElementById('stats');
+  statsEl.innerHTML = agents.map(a => {
+    const config = AGENTS[a.id];
+    return `
+    <div class="agent-stat" style="border-color: ${config.color}">
+      <h3 style="color: ${config.color}">${config.emoji} ${config.name}</h3>
+      <div class="detail">💰 Cost: $${a.costUsd.toFixed(2)}</div>
+      <div class="detail">🪙 Tokens: ${formatTokens(a.tokens)}</div>
+      <div class="detail">⏱ Uptime: ${formatUptime(a.uptimeMinutes)}</div>
+      <div class="detail">📝 ${a.lastTask}</div>
+      <span class="status ${a.status}">${a.status === 'active' ? '⚔️ ACTIVE' : '💤 IDLE'}</span>
+    </div>
+  `}).join('');
+}
+
+function formatTokens(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(0) + 'K';
+  return n.toString();
+}
+
+function formatUptime(mins) {
+  if (mins < 60) return mins + 'м';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h + 'ч ' + m + 'м';
+}
+
+function toggleAnimation() {
+  isPaused = !isPaused;
+}
+
+// Load data
+async function loadData() {
+  try {
+    const res = await fetch('data.json');
+    const data = await res.json();
+    agents = data.agents;
+    updateStats();
+  } catch (e) {
+    console.error('Failed to load data:', e);
+  }
+}
+
+// Initialize
+loadSprites();
+loadData();
+setInterval(loadData, 10000);
+</script>
+
+</body>
+</html>
