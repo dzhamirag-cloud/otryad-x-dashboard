@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-03T16:09:56.628356",
+  "updatedAt": "2026-03-03T16:25:00.805491",
   "agents": [
     {
       "id": "main",
@@ -7,14 +7,14 @@
       "role": "Главный координатор",
       "emoji": "🤖",
       "color": "#3377ff",
-      "model": "Sonnet",
-      "status": "idle",
-      "tokens": 2460541,
+      "model": "Opus",
+      "status": "active",
+      "tokens": 2485536,
       "tasks": 0,
-      "costUsd": 22.145,
+      "costUsd": 111.849,
       "uptimeMinutes": 0,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-03T15:49:25.905018"
+      "lastActivity": "2026-03-03T16:23:51.855263"
     },
     {
       "id": "marketer",
@@ -38,13 +38,13 @@
       "emoji": "🎯",
       "color": "#ff375f",
       "model": "Sonnet",
-      "status": "idle",
-      "tokens": 365856,
+      "status": "active",
+      "tokens": 367075,
       "tasks": 0,
-      "costUsd": 3.293,
+      "costUsd": 3.304,
       "uptimeMinutes": 0,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-03T14:16:47.890169"
+      "lastActivity": "2026-03-03T16:22:09.375476"
     },
     {
       "id": "cfo",
@@ -68,13 +68,13 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "active",
-      "tokens": 253950,
+      "status": "idle",
+      "tokens": 276960,
       "tasks": 0,
-      "costUsd": 2.286,
+      "costUsd": 2.493,
       "uptimeMinutes": 0,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-03T16:09:48.165261"
+      "lastActivity": "2026-03-03T16:18:23.429111"
     },
     {
       "id": "strategist",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 1,
-    "totalTokens": 3839480,
+    "active": 2,
+    "totalTokens": 3888704,
     "totalTasks": 0,
-    "totalCostUsd": 34.56
+    "totalCostUsd": 124.48
   }
 }
