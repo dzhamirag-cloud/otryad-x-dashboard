@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-03T18:10:36.352557",
+  "updatedAt": "2026-03-03T18:25:42.832347",
   "agents": [
     {
       "id": "main",
@@ -38,13 +38,13 @@
       "emoji": "🎯",
       "color": "#ff375f",
       "model": "Sonnet",
-      "status": "idle",
-      "tokens": 367075,
+      "status": "active",
+      "tokens": 367542,
       "tasks": 0,
-      "costUsd": 3.304,
+      "costUsd": 3.308,
       "uptimeMinutes": 0,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-03T16:22:09.375476"
+      "lastActivity": "2026-03-03T18:24:45.637072"
     },
     {
       "id": "cfo",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 0,
-    "totalTokens": 4206153,
+    "active": 1,
+    "totalTokens": 4206620,
     "totalTasks": 0,
-    "totalCostUsd": 137.17
+    "totalCostUsd": 137.18
   }
 }
