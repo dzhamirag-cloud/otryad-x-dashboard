@@ -82,7 +82,7 @@ body {
 
 <div class="header">
   <h1>⚔️ ОТРЯД X — ULTIMATE OFFICE ⚔️</h1>
-  <div style="font-size: 8px; color: #999; margin-top: 5px;">Full Furniture · Real Tileset · Animated Characters</div>
+  <div style="font-size: 8px; color: #999; margin-top: 5px;">Full Furniture · Plants · Decorations · Animated Characters</div>
 </div>
 
 <div id="viewport">
@@ -105,8 +105,6 @@ const TILE_SIZE = 16;
 const CHAR_WIDTH = 16;
 const CHAR_HEIGHT = 32;
 const FRAMES_PER_ROW = 7;
-
-// Furniture tileset (16x16 grid, ~20 columns)
 const FURNITURE_COLS = 20;
 
 let furnitureImg = null;
@@ -118,11 +116,9 @@ let currentZoom = 3;
 let assetsReady = false;
 let spritesLoaded = 0;
 
-// Simple office layout (21x21 grid)
 const OFFICE_WIDTH = 21;
 const OFFICE_HEIGHT = 21;
 
-// Agent positions
 const AGENTS = {
   main: { charIndex: 0, color: '#3377ff', name: 'Кайро', emoji: '🤖', x: 5, y: 5 },
   marketer: { charIndex: 1, color: '#ff9500', name: 'Марк', emoji: '📈', x: 15, y: 5 },
@@ -132,59 +128,140 @@ const AGENTS = {
   strategist: { charIndex: 5, color: '#bf5af2', name: 'Прайм', emoji: '🧠', x: 10, y: 12 }
 };
 
-// Furniture layout - simple office with desks
-// Each desk position: [gridX, gridY, furnitureTileX, furnitureTileY]
+// Massive furniture layout - lots of detail!
 const FURNITURE = [
-  // Кайро desk (top-left)
-  [4, 4, 0, 0], [5, 4, 1, 0], // desk
+  // === TOP LEFT AREA (Кайро) ===
+  // Desk
+  [4, 4, 0, 0], [5, 4, 1, 0],
   [4, 5, 0, 1], [5, 5, 1, 1],
   [5, 3, 3, 0], // computer
   [4, 3, 2, 2], // chair
+  // Bookshelf behind
+  [3, 4, 6, 0], [3, 5, 6, 1],
+  // Plant
+  [2, 3, 8, 2],
+  // Filing cabinet
+  [2, 6, 4, 0],
   
-  // Марк desk (top-right)
+  // === TOP RIGHT AREA (Марк) ===
   [14, 4, 0, 0], [15, 4, 1, 0],
   [14, 5, 0, 1], [15, 5, 1, 1],
   [15, 3, 3, 0],
   [14, 3, 2, 2],
+  // Whiteboard
+  [17, 4, 12, 0], [17, 5, 12, 1],
+  // Plant
+  [18, 3, 8, 3],
+  // Small table
+  [17, 6, 1, 3],
   
-  // Бренд desk (bottom-left)
+  // === BOTTOM LEFT AREA (Бренд) ===
   [4, 14, 0, 0], [5, 14, 1, 0],
   [4, 15, 0, 1], [5, 15, 1, 1],
   [5, 13, 3, 0],
   [4, 13, 2, 2],
+  // Cabinet
+  [3, 14, 7, 0], [3, 15, 7, 1],
+  // Plant
+  [2, 16, 9, 2],
+  // Printer
+  [2, 13, 11, 2],
   
-  // Фин desk (bottom-right)
+  // === BOTTOM RIGHT AREA (Фин) ===
   [14, 14, 0, 0], [15, 14, 1, 0],
   [14, 15, 0, 1], [15, 15, 1, 1],
   [15, 13, 3, 0],
   [14, 13, 2, 2],
+  // Safe
+  [17, 14, 5, 0],
+  // Plant
+  [18, 16, 8, 2],
+  // Coffee machine
+  [17, 16, 10, 3],
   
-  // Текна desk (center-top)
+  // === CENTER TOP (Текна) ===
   [9, 7, 0, 0], [10, 7, 1, 0],
   [9, 8, 0, 1], [10, 8, 1, 1],
   [10, 6, 3, 0],
   [9, 6, 2, 2],
+  // Server rack
+  [8, 7, 13, 0], [8, 8, 13, 1],
   
-  // Прайм desk (center-bottom)
+  // === CENTER BOTTOM (Прайм) ===
   [9, 11, 0, 0], [10, 11, 1, 0],
   [9, 12, 0, 1], [10, 12, 1, 1],
   [10, 10, 3, 0],
   [9, 10, 2, 2],
+  // Strategy board
+  [11, 11, 12, 0], [11, 12, 12, 1],
   
-  // Plants
-  [1, 1, 8, 2],
-  [18, 1, 8, 2],
-  [1, 18, 8, 2],
-  [18, 18, 8, 2],
+  // === LOUNGE AREA (CENTER) ===
+  // Sofa
+  [10, 18, 14, 0], [11, 18, 15, 0],
+  // Coffee table
+  [10, 17, 16, 2],
+  // Plant
+  [9, 18, 8, 3],
+  [12, 18, 8, 2],
   
+  // === KITCHEN/BREAK AREA (TOP CENTER) ===
   // Water cooler
-  [10, 18, 10, 4]
+  [10, 1, 10, 4],
+  // Vending machine
+  [11, 1, 17, 0], [11, 2, 17, 1],
+  // Microwave counter
+  [9, 1, 18, 2],
+  // Fridge
+  [8, 1, 19, 0], [8, 2, 19, 1],
+  
+  // === DECORATIONS - PLANTS EVERYWHERE ===
+  [1, 1, 8, 2],
+  [19, 1, 8, 2],
+  [1, 19, 8, 2],
+  [19, 19, 8, 2],
+  [1, 10, 9, 2],
+  [19, 10, 8, 3],
+  
+  // === WALL DECORATIONS ===
+  // Clocks
+  [10, 0, 11, 4],
+  // Pictures
+  [5, 0, 9, 4],
+  [15, 0, 9, 4],
+  
+  // === ADDITIONAL FURNITURE ===
+  // Meeting table
+  [1, 8, 1, 3], [2, 8, 1, 3],
+  [1, 9, 2, 2], [2, 9, 2, 2],
+  // Chairs around
+  [0, 8, 2, 2],
+  [3, 8, 2, 2],
+  
+  // Storage shelves
+  [19, 8, 6, 0], [19, 9, 6, 1],
+  [19, 11, 6, 0], [19, 12, 6, 1],
+  
+  // Trash bins
+  [6, 10, 4, 4],
+  [13, 10, 4, 4],
+  
+  // Lamps
+  [7, 7, 11, 3],
+  [12, 7, 11, 3],
+  [7, 12, 11, 3],
+  [12, 12, 11, 3],
+  
+  // Rugs
+  [10, 10, 15, 4],
+  [5, 5, 15, 4],
+  [15, 5, 15, 4],
+  [5, 15, 15, 4],
+  [15, 15, 15, 4]
 ];
 
 canvas.width = OFFICE_WIDTH * TILE_SIZE * currentZoom;
 canvas.height = OFFICE_HEIGHT * TILE_SIZE * currentZoom;
 
-// Load furniture tileset
 function loadFurniture() {
   furnitureImg = new Image();
   furnitureImg.onload = () => {
@@ -194,7 +271,6 @@ function loadFurniture() {
   furnitureImg.src = 'furniture.png';
 }
 
-// Load character sprites
 function loadSprites() {
   for (let i = 0; i < 6; i++) {
     const img = new Image();
@@ -215,12 +291,10 @@ function checkAssetsReady() {
   }
 }
 
-// Draw floor
 function drawFloor() {
   ctx.fillStyle = '#4a4a5a';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Grid
   ctx.strokeStyle = 'rgba(0,0,0,0.1)';
   ctx.lineWidth = 1;
   for (let x = 0; x < OFFICE_WIDTH; x++) {
@@ -233,7 +307,6 @@ function drawFloor() {
   }
 }
 
-// Draw furniture tile
 function drawFurnitureTile(gridX, gridY, tileX, tileY) {
   if (!furnitureImg || !furnitureImg.complete) return;
   
@@ -248,7 +321,6 @@ function drawFurnitureTile(gridX, gridY, tileX, tileY) {
   );
 }
 
-// Draw character
 function drawCharacter(gridX, gridY, charIndex, isActive) {
   const sprite = characterSprites[charIndex];
   if (!sprite || !sprite.complete) return;
@@ -267,7 +339,6 @@ function drawCharacter(gridX, gridY, charIndex, isActive) {
     CHAR_WIDTH * scale, CHAR_HEIGHT * scale
   );
   
-  // Status
   if (isActive) {
     ctx.fillStyle = '#34c759';
     const barW = 16 * currentZoom;
@@ -276,7 +347,6 @@ function drawCharacter(gridX, gridY, charIndex, isActive) {
     ctx.fillRect(x - barW/2, barY, barW, barH);
   }
   
-  // Name tag
   ctx.font = `${8 * currentZoom}px "Press Start 2P"`;
   ctx.fillStyle = '#fff';
   ctx.textAlign = 'center';
@@ -286,22 +356,18 @@ function drawCharacter(gridX, gridY, charIndex, isActive) {
   }
 }
 
-// Render
 function render() {
   if (!assetsReady || isPaused) {
     requestAnimationFrame(render);
     return;
   }
   
-  // Clear
   drawFloor();
   
-  // Draw furniture
   FURNITURE.forEach(([gx, gy, tx, ty]) => {
     drawFurnitureTile(gx, gy, tx, ty);
   });
   
-  // Draw agents
   agents.forEach(agent => {
     const config = AGENTS[agent.id];
     if (!config) return;
@@ -313,7 +379,6 @@ function render() {
   requestAnimationFrame(render);
 }
 
-// Load data
 async function loadData() {
   try {
     const res = await fetch('data.json');
