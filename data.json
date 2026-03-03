@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-03T10:19:58.121454",
+  "updatedAt": "2026-03-03T10:21:01.690277",
   "agents": [
     {
       "id": "main",
@@ -8,7 +8,7 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 1993731,
       "tasks": 0,
       "costUsd": 17.944,
@@ -68,7 +68,7 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 97709,
       "tasks": 0,
       "costUsd": 0.879,
@@ -94,7 +94,7 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 2,
+    "active": 0,
     "totalTokens": 3183587,
     "totalTasks": 0,
     "totalCostUsd": 28.65
