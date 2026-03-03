@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ ОТРЯД X — Pixel Office</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2a 100%);
+  color: #fff;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.5);
+  border-bottom: 2px solid #3377ff;
+}
+
+.header h1 {
+  font-size: 24px;
+  color: #5ac8fa;
+  text-shadow: 0 0 10px #3377ff;
+}
+
+.office-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 600px;
+  padding: 40px 20px;
+}
+
+#pixel-canvas {
+  border: 4px solid #3377ff;
+  border-radius: 8px;
+  background: #2a2a3a;
+  box-shadow: 0 0 30px rgba(51,119,255,0.3);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.stats-panel {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background: rgba(0,0,0,0.5);
+  border: 2px solid #3377ff;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.agent-stat {
+  background: linear-gradient(135deg, #1a1a3a 0%, #2a2a4a 100%);
+  padding: 15px;
+  border-radius: 6px;
+  border-left: 4px solid;
+}
+
+.agent-stat h3 {
+  font-size: 10px;
+  margin-bottom: 10px;
+}
+
+.agent-stat .detail {
+  font-size: 8px;
+  color: #999;
+  margin: 5px 0;
+}
+
+.agent-stat .status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 7px;
+  margin-top: 5px;
+}
+
+.status.active {
+  background: #34c759;
+  color: #000;
+}
+
+.status.idle {
+  background: #666;
+  color: #fff;
+}
+
+.controls {
+  text-align: center;
+  padding: 20px;
+}
+
+.controls button {
+  background: #3377ff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 5px;
+}
+
+.controls button:hover {
+  background: #5ac8fa;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 7px;
+  color: #666;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚔️ ОТРЯД X — PIXEL OFFICE ⚔️</h1>
+  <div style="font-size: 8px; color: #999; margin-top: 10px;">Live Agent Monitoring · Real-time Animation</div>
+</div>
+
+<div class="office-container">
+  <canvas id="pixel-canvas" width="800" height="600"></canvas>
+</div>
+
+<div class="stats-panel" id="stats"></div>
+
+<div class="controls">
+  <button onclick="location.href='index.html'">← Back to Grid Dashboard</button>
+  <button onclick="toggleAnimation()">⏸ Pause Animation</button>
+</div>
+
+<div class="footer">
+  ОТРЯД X © 2026 — PIXEL OFFICE v1.0 — AUTO-REFRESH 10s
+</div>
+
+<script>
+const canvas = document.getElementById('pixel-canvas');
+const ctx = canvas.getContext('2d');
+
+// Agent colors
+const COLORS = {
+  main: '#3377ff',
+  marketer: '#ff9500',
+  brandman: '#ff375f',
+  cfo: '#ffd60a',
+  techlead: '#5ac8fa',
+  strategist: '#bf5af2'
+};
+
+// Agent positions in office (isometric grid)
+const POSITIONS = {
+  main: { x: 200, y: 150 },
+  marketer: { x: 400, y: 150 },
+  brandman: { x: 600, y: 150 },
+  cfo: { x: 200, y: 350 },
+  techlead: { x: 400, y: 350 },
+  strategist: { x: 600, y: 350 }
+};
+
+let agents = [];
+let animFrame = 0;
+let isPaused = false;
+
+// Draw desk
+function drawDesk(x, y, color) {
+  // Desktop
+  ctx.fillStyle = '#3a3a4a';
+  ctx.fillRect(x - 40, y + 20, 80, 40);
+  
+  // Desk border
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x - 40, y + 20, 80, 40);
+  
+  // Monitor
+  ctx.fillStyle = '#1a1a2a';
+  ctx.fillRect(x - 20, y - 10, 40, 30);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x - 20, y - 10, 40, 30);
+  
+  // Monitor screen (glow)
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.3;
+  ctx.fillRect(x - 18, y - 8, 36, 26);
+  ctx.globalAlpha = 1.0;
+}
+
+// Draw character (pixel person)
+function drawCharacter(x, y, color, isActive, frame) {
+  // Head
+  ctx.fillStyle = '#ffd1a3';
+  ctx.fillRect(x - 6, y - 20, 12, 12);
+  
+  // Eyes
+  ctx.fillStyle = '#000';
+  ctx.fillRect(x - 4, y - 16, 2, 2);
+  ctx.fillRect(x + 2, y - 16, 2, 2);
+  
+  // Body
+  ctx.fillStyle = color;
+  ctx.fillRect(x - 8, y - 8, 16, 16);
+  
+  // Arms (animate if active)
+  if (isActive && frame % 20 < 10) {
+    // Typing animation - arms down
+    ctx.fillStyle = '#ffd1a3';
+    ctx.fillRect(x - 12, y - 4, 4, 8);
+    ctx.fillRect(x + 8, y - 4, 4, 8);
+  } else {
+    // Arms up/neutral
+    ctx.fillStyle = '#ffd1a3';
+    ctx.fillRect(x - 12, y - 6, 4, 10);
+    ctx.fillRect(x + 8, y - 6, 4, 10);
+  }
+  
+  // Legs
+  ctx.fillStyle = '#2a2a3a';
+  ctx.fillRect(x - 6, y + 8, 5, 8);
+  ctx.fillRect(x + 1, y + 8, 5, 8);
+  
+  // Status indicator above head
+  if (isActive) {
+    ctx.fillStyle = '#34c759';
+    ctx.fillRect(x - 4, y - 28, 8, 4);
+    ctx.fillText('⚙️', x - 6, y - 26);
+  }
+}
+
+// Draw name tag
+function drawNameTag(x, y, name, emoji) {
+  ctx.font = '10px "Press Start 2P"';
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${emoji} ${name}`, x, y + 40);
+}
+
+// Draw activity particles (when active)
+function drawActivityParticles(x, y, frame) {
+  for (let i = 0; i < 3; i++) {
+    const offset = (frame + i * 10) % 30;
+    ctx.fillStyle = '#00ff88';
+    ctx.globalAlpha = 1 - (offset / 30);
+    ctx.fillRect(x - 10 + i * 10, y - 30 - offset, 2, 2);
+  }
+  ctx.globalAlpha = 1.0;
+}
+
+// Render office
+function render() {
+  if (isPaused) return;
+  
+  // Clear canvas
+  ctx.fillStyle = '#2a2a3a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw floor grid
+  ctx.strokeStyle = '#3a3a4a';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < canvas.width; i += 50) {
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, canvas.height);
+    ctx.stroke();
+  }
+  for (let i = 0; i < canvas.height; i += 50) {
+    ctx.beginPath();
+    ctx.moveTo(0, i);
+    ctx.lineTo(canvas.width, i);
+    ctx.stroke();
+  }
+  
+  // Draw title
+  ctx.font = '16px "Press Start 2P"';
+  ctx.fillStyle = '#5ac8fa';
+  ctx.textAlign = 'center';
+  ctx.fillText('PIXEL OFFICE', canvas.width / 2, 30);
+  
+  // Draw each agent workspace
+  agents.forEach(agent => {
+    const pos = POSITIONS[agent.id];
+    if (!pos) return;
+    
+    const color = COLORS[agent.id];
+    const isActive = agent.status === 'active';
+    
+    // Draw desk
+    drawDesk(pos.x, pos.y, color);
+    
+    // Draw character
+    drawCharacter(pos.x, pos.y, color, isActive, animFrame);
+    
+    // Draw name
+    drawNameTag(pos.x, pos.y, agent.name, agent.emoji);
+    
+    // Draw activity particles if active
+    if (isActive) {
+      drawActivityParticles(pos.x, pos.y, animFrame);
+    }
+  });
+  
+  animFrame++;
+  requestAnimationFrame(render);
+}
+
+// Update stats panel
+function updateStats() {
+  const statsEl = document.getElementById('stats');
+  statsEl.innerHTML = agents.map(a => `
+    <div class="agent-stat" style="border-color: ${COLORS[a.id]}">
+      <h3 style="color: ${COLORS[a.id]}">${a.emoji} ${a.name}</h3>
+      <div class="detail">💰 Cost: $${a.costUsd.toFixed(2)}</div>
+      <div class="detail">🪙 Tokens: ${formatTokens(a.tokens)}</div>
+      <div class="detail">⏱ Uptime: ${formatUptime(a.uptimeMinutes)}</div>
+      <div class="detail">📝 ${a.lastTask}</div>
+      <span class="status ${a.status}">${a.status === 'active' ? '⚔️ ACTIVE' : '💤 IDLE'}</span>
+    </div>
+  `).join('');
+}
+
+function formatTokens(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(0) + 'K';
+  return n.toString();
+}
+
+function formatUptime(mins) {
+  if (mins < 60) return mins + 'м';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h + 'ч ' + m + 'м';
+}
+
+function toggleAnimation() {
+  isPaused = !isPaused;
+  if (!isPaused) render();
+}
+
+// Load data
+async function loadData() {
+  try {
+    const res = await fetch('data.json');
+    const data = await res.json();
+    agents = data.agents;
+    updateStats();
+  } catch (e) {
+    console.error('Failed to load data:', e);
+  }
+}
+
+// Initialize
+loadData();
+render();
+setInterval(loadData, 10000); // Update every 10s
+</script>
+
+</body>
+</html>
