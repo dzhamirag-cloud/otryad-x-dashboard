@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-04T22:21:07.832816",
+  "updatedAt": "2026-03-04T22:36:10.712168",
   "agents": [
     {
       "id": "main",
@@ -8,13 +8,13 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Opus",
-      "status": "idle",
-      "tokens": 5263653,
+      "status": "active",
+      "tokens": 5273339,
       "tasks": 0,
-      "costUsd": 236.864,
-      "uptimeMinutes": 673,
+      "costUsd": 237.3,
+      "uptimeMinutes": 714,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-04T21:52:35.689301"
+      "lastActivity": "2026-03-04T22:33:11.475037"
     },
     {
       "id": "marketer",
@@ -24,12 +24,12 @@
       "color": "#ff9500",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 628096,
+      "tokens": 628783,
       "tasks": 0,
-      "costUsd": 5.653,
-      "uptimeMinutes": 2087,
+      "costUsd": 5.659,
+      "uptimeMinutes": 2107,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-04T22:08:38.075132"
+      "lastActivity": "2026-03-04T22:28:36.854656"
     },
     {
       "id": "brandman",
@@ -39,12 +39,12 @@
       "color": "#ff375f",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 476752,
+      "tokens": 477626,
       "tasks": 0,
-      "costUsd": 4.291,
-      "uptimeMinutes": 697,
+      "costUsd": 4.299,
+      "uptimeMinutes": 718,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-04T22:08:41.306030"
+      "lastActivity": "2026-03-04T22:29:19.439573"
     },
     {
       "id": "cfo",
@@ -68,13 +68,13 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "active",
-      "tokens": 1193225,
+      "status": "idle",
+      "tokens": 1205624,
       "tasks": 0,
-      "costUsd": 10.739,
-      "uptimeMinutes": 1756,
+      "costUsd": 10.851,
+      "uptimeMinutes": 1767,
       "lastTask": "- Мониторинг webhook health",
-      "lastActivity": "2026-03-04T22:19:48.557127"
+      "lastActivity": "2026-03-04T22:30:38.323349"
     },
     {
       "id": "strategist",
@@ -95,8 +95,8 @@
   "totals": {
     "agents": 6,
     "active": 1,
-    "totalTokens": 7725289,
+    "totalTokens": 7748935,
     "totalTasks": 0,
-    "totalCostUsd": 259.02
+    "totalCostUsd": 259.58
   }
 }
