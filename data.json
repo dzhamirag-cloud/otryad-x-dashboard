@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-04T22:06:03.429237",
+  "updatedAt": "2026-03-04T22:21:07.832816",
   "agents": [
     {
       "id": "main",
@@ -23,13 +23,13 @@
       "emoji": "📈",
       "color": "#ff9500",
       "model": "Sonnet",
-      "status": "active",
-      "tokens": 623365,
+      "status": "idle",
+      "tokens": 628096,
       "tasks": 0,
-      "costUsd": 5.61,
-      "uptimeMinutes": 2084,
+      "costUsd": 5.653,
+      "uptimeMinutes": 2087,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-04T22:05:48.342935"
+      "lastActivity": "2026-03-04T22:08:38.075132"
     },
     {
       "id": "brandman",
@@ -38,13 +38,13 @@
       "emoji": "🎯",
       "color": "#ff375f",
       "model": "Sonnet",
-      "status": "active",
-      "tokens": 471895,
+      "status": "idle",
+      "tokens": 476752,
       "tasks": 0,
-      "costUsd": 4.247,
-      "uptimeMinutes": 694,
+      "costUsd": 4.291,
+      "uptimeMinutes": 697,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-04T22:05:46.785516"
+      "lastActivity": "2026-03-04T22:08:41.306030"
     },
     {
       "id": "cfo",
@@ -69,12 +69,12 @@
       "color": "#5ac8fa",
       "model": "Sonnet",
       "status": "active",
-      "tokens": 1125215,
+      "tokens": 1193225,
       "tasks": 0,
-      "costUsd": 10.127,
-      "uptimeMinutes": 1742,
+      "costUsd": 10.739,
+      "uptimeMinutes": 1756,
       "lastTask": "- Мониторинг webhook health",
-      "lastActivity": "2026-03-04T22:05:45.197551"
+      "lastActivity": "2026-03-04T22:19:48.557127"
     },
     {
       "id": "strategist",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 3,
-    "totalTokens": 7647691,
+    "active": 1,
+    "totalTokens": 7725289,
     "totalTasks": 0,
-    "totalCostUsd": 258.32
+    "totalCostUsd": 259.02
   }
 }
