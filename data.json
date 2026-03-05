@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-05T08:39:01.768901",
+  "updatedAt": "2026-03-05T08:54:01.412174",
   "agents": [
     {
       "id": "main",
@@ -9,12 +9,12 @@
       "color": "#3377ff",
       "model": "Opus",
       "status": "idle",
-      "tokens": 5949628,
+      "tokens": 6017862,
       "tasks": 0,
-      "costUsd": 267.733,
-      "uptimeMinutes": 1112,
+      "costUsd": 270.804,
+      "uptimeMinutes": 1326,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-05T05:11:39.084790"
+      "lastActivity": "2026-03-05T08:46:09.319813"
     },
     {
       "id": "marketer",
@@ -24,12 +24,12 @@
       "color": "#ff9500",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 637716,
+      "tokens": 639102,
       "tasks": 0,
-      "costUsd": 5.739,
-      "uptimeMinutes": 2506,
+      "costUsd": 5.752,
+      "uptimeMinutes": 2723,
       "lastTask": "4. После запуска атрибуции: 2-4 недели сбор данных → перерас",
-      "lastActivity": "2026-03-05T05:07:54.762222"
+      "lastActivity": "2026-03-05T08:44:25.668896"
     },
     {
       "id": "brandman",
@@ -39,12 +39,12 @@
       "color": "#ff375f",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 500699,
+      "tokens": 502095,
       "tasks": 0,
-      "costUsd": 4.506,
-      "uptimeMinutes": 1116,
+      "costUsd": 4.519,
+      "uptimeMinutes": 1333,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-05T05:07:23.970065"
+      "lastActivity": "2026-03-05T08:44:34.822294"
     },
     {
       "id": "cfo",
@@ -54,12 +54,12 @@
       "color": "#ffd60a",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 10394,
+      "tokens": 11640,
       "tasks": 0,
-      "costUsd": 0.094,
-      "uptimeMinutes": 3830,
+      "costUsd": 0.105,
+      "uptimeMinutes": 4047,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-05T05:07:30.706453"
+      "lastActivity": "2026-03-05T08:44:25.859397"
     },
     {
       "id": "techlead",
@@ -69,12 +69,12 @@
       "color": "#5ac8fa",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 1217911,
+      "tokens": 1219204,
       "tasks": 0,
-      "costUsd": 10.961,
-      "uptimeMinutes": 2163,
+      "costUsd": 10.973,
+      "uptimeMinutes": 2380,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-05T05:07:25.613413"
+      "lastActivity": "2026-03-05T08:44:22.929142"
     },
     {
       "id": "strategist",
@@ -84,19 +84,19 @@
       "color": "#bf5af2",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 174538,
+      "tokens": 175942,
       "tasks": 0,
-      "costUsd": 1.571,
-      "uptimeMinutes": 3282,
+      "costUsd": 1.583,
+      "uptimeMinutes": 3498,
       "lastTask": "**Дата:** 05.03.2026, 05:07 GMT+3",
-      "lastActivity": "2026-03-05T05:08:19.290629"
+      "lastActivity": "2026-03-05T08:44:16.419277"
     }
   ],
   "totals": {
     "agents": 6,
     "active": 0,
-    "totalTokens": 8490886,
+    "totalTokens": 8565845,
     "totalTasks": 0,
-    "totalCostUsd": 290.6
+    "totalCostUsd": 293.74
   }
 }
