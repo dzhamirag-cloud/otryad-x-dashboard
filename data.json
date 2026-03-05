@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-05T04:51:56.398290",
+  "updatedAt": "2026-03-05T05:07:05.188141",
   "agents": [
     {
       "id": "main",
@@ -8,13 +8,13 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Opus",
-      "status": "active",
-      "tokens": 5578631,
+      "status": "idle",
+      "tokens": 5936197,
       "tasks": 0,
-      "costUsd": 251.038,
-      "uptimeMinutes": 1092,
+      "costUsd": 267.129,
+      "uptimeMinutes": 1095,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-05T04:51:49.687679"
+      "lastActivity": "2026-03-05T04:54:11.543140"
     },
     {
       "id": "marketer",
@@ -23,7 +23,7 @@
       "emoji": "📈",
       "color": "#ff9500",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 635028,
       "tasks": 0,
       "costUsd": 5.715,
@@ -38,7 +38,7 @@
       "emoji": "🎯",
       "color": "#ff375f",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 499363,
       "tasks": 0,
       "costUsd": 4.494,
@@ -53,7 +53,7 @@
       "emoji": "💰",
       "color": "#ffd60a",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 9119,
       "tasks": 0,
       "costUsd": 0.082,
@@ -68,7 +68,7 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 1216469,
       "tasks": 0,
       "costUsd": 10.948,
@@ -83,20 +83,20 @@
       "emoji": "🧠",
       "color": "#bf5af2",
       "model": "Sonnet",
-      "status": "active",
-      "tokens": 170536,
+      "status": "idle",
+      "tokens": 171797,
       "tasks": 0,
-      "costUsd": 1.535,
+      "costUsd": 1.546,
       "uptimeMinutes": 3265,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-05T04:51:42.637012"
+      "lastActivity": "2026-03-05T04:51:58.235523"
     }
   ],
   "totals": {
     "agents": 6,
-    "active": 6,
-    "totalTokens": 8109146,
+    "active": 0,
+    "totalTokens": 8467973,
     "totalTasks": 0,
-    "totalCostUsd": 273.81
+    "totalCostUsd": 289.91
   }
 }
