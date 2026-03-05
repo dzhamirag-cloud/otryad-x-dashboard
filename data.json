@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-06T00:14:04.623543",
+  "updatedAt": "2026-03-06T00:29:03.907821",
   "agents": [
     {
       "id": "main",
@@ -8,13 +8,13 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Opus",
-      "status": "idle",
-      "tokens": 6380827,
+      "status": "active",
+      "tokens": 6402588,
       "tasks": 0,
-      "costUsd": 287.137,
-      "uptimeMinutes": 2248,
+      "costUsd": 288.116,
+      "uptimeMinutes": 2268,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-06T00:07:23.159129"
+      "lastActivity": "2026-03-06T00:27:48.448996"
     },
     {
       "id": "marketer",
@@ -68,13 +68,13 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "idle",
-      "tokens": 1527815,
+      "status": "active",
+      "tokens": 1550169,
       "tasks": 0,
-      "costUsd": 13.75,
-      "uptimeMinutes": 3304,
+      "costUsd": 13.952,
+      "uptimeMinutes": 3324,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-06T00:07:39.411044"
+      "lastActivity": "2026-03-06T00:27:51.543243"
     },
     {
       "id": "strategist",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 0,
-    "totalTokens": 9244114,
+    "active": 2,
+    "totalTokens": 9288229,
     "totalTasks": 0,
-    "totalCostUsd": 312.91
+    "totalCostUsd": 314.09
   }
 }
