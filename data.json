@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-06T11:47:03.237656",
+  "updatedAt": "2026-03-06T12:02:05.260874",
   "agents": [
     {
       "id": "main",
@@ -68,13 +68,13 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "idle",
-      "tokens": 2346605,
+      "status": "active",
+      "tokens": 2354859,
       "tasks": 0,
-      "costUsd": 21.119,
-      "uptimeMinutes": 3976,
+      "costUsd": 21.194,
+      "uptimeMinutes": 4017,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-06T11:19:46.023508"
+      "lastActivity": "2026-03-06T12:01:17.372057"
     },
     {
       "id": "strategist",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 0,
-    "totalTokens": 10886335,
+    "active": 1,
+    "totalTokens": 10894589,
     "totalTasks": 0,
-    "totalCostUsd": 357.19
+    "totalCostUsd": 357.26
   }
 }
