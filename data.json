@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-06T13:17:16.120397",
+  "updatedAt": "2026-03-06T13:32:16.143749",
   "agents": [
     {
       "id": "main",
@@ -9,12 +9,12 @@
       "color": "#3377ff",
       "model": "Opus",
       "status": "idle",
-      "tokens": 7200259,
+      "tokens": 7202300,
       "tasks": 0,
-      "costUsd": 324.012,
-      "uptimeMinutes": 2916,
+      "costUsd": 324.103,
+      "uptimeMinutes": 3041,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-06T11:15:55.319546"
+      "lastActivity": "2026-03-06T13:20:24.758913"
     },
     {
       "id": "marketer",
@@ -54,12 +54,12 @@
       "color": "#ffd60a",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 13039,
+      "tokens": 16789,
       "tasks": 0,
-      "costUsd": 0.117,
-      "uptimeMinutes": 4065,
+      "costUsd": 0.151,
+      "uptimeMinutes": 5766,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-05T09:02:09.962569"
+      "lastActivity": "2026-03-06T13:23:00.942497"
     },
     {
       "id": "techlead",
@@ -69,12 +69,12 @@
       "color": "#5ac8fa",
       "model": "Sonnet",
       "status": "active",
-      "tokens": 2430802,
+      "tokens": 2513095,
       "tasks": 0,
-      "costUsd": 21.877,
-      "uptimeMinutes": 4091,
+      "costUsd": 22.618,
+      "uptimeMinutes": 4107,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-06T13:15:21.010916"
+      "lastActivity": "2026-03-06T13:31:27.916529"
     },
     {
       "id": "strategist",
@@ -84,19 +84,19 @@
       "color": "#bf5af2",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 182496,
+      "tokens": 280141,
       "tasks": 0,
-      "costUsd": 1.642,
-      "uptimeMinutes": 4717,
+      "costUsd": 2.521,
+      "uptimeMinutes": 5218,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-06T05:03:25.093579"
+      "lastActivity": "2026-03-06T13:24:08.377892"
     }
   ],
   "totals": {
     "agents": 6,
     "active": 1,
-    "totalTokens": 10970532,
+    "totalTokens": 11156261,
     "totalTasks": 0,
-    "totalCostUsd": 357.94
+    "totalCostUsd": 359.69
   }
 }
