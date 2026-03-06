@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-06T11:16:59.773431",
+  "updatedAt": "2026-03-06T11:32:01.427325",
   "agents": [
     {
       "id": "main",
@@ -8,7 +8,7 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Opus",
-      "status": "active",
+      "status": "idle",
       "tokens": 7200259,
       "tasks": 0,
       "costUsd": 324.012,
@@ -68,13 +68,13 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "active",
-      "tokens": 2338435,
+      "status": "idle",
+      "tokens": 2346605,
       "tasks": 0,
-      "costUsd": 21.046,
-      "uptimeMinutes": 3973,
+      "costUsd": 21.119,
+      "uptimeMinutes": 3976,
       "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-06T11:16:51.049331"
+      "lastActivity": "2026-03-06T11:19:46.023508"
     },
     {
       "id": "strategist",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 2,
-    "totalTokens": 10878165,
+    "active": 0,
+    "totalTokens": 10886335,
     "totalTasks": 0,
-    "totalCostUsd": 357.11
+    "totalCostUsd": 357.19
   }
 }
