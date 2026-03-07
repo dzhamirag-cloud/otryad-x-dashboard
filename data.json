@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-07T22:27:09.491705",
+  "updatedAt": "2026-03-07T22:42:12.243177",
   "agents": [
     {
       "id": "main",
@@ -68,13 +68,13 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "active",
-      "tokens": 3452978,
+      "status": "idle",
+      "tokens": 3499654,
       "tasks": 0,
-      "costUsd": 31.077,
-      "uptimeMinutes": 6083,
-      "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-07T22:26:46.836384"
+      "costUsd": 31.497,
+      "uptimeMinutes": 6093,
+      "lastTask": "4. Дождаться ответа Lumo по webhook",
+      "lastActivity": "2026-03-07T22:36:50.182458"
     },
     {
       "id": "strategist",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 1,
-    "totalTokens": 13123538,
+    "active": 0,
+    "totalTokens": 13170214,
     "totalTasks": 0,
-    "totalCostUsd": 413.27
+    "totalCostUsd": 413.69
   }
 }
