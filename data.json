@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-07T23:12:20.067638",
+  "updatedAt": "2026-03-07T23:27:22.399447",
   "agents": [
     {
       "id": "main",
@@ -8,13 +8,13 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Opus",
-      "status": "active",
-      "tokens": 8205663,
+      "status": "idle",
+      "tokens": 8219651,
       "tasks": 0,
-      "costUsd": 369.255,
-      "uptimeMinutes": 5073,
+      "costUsd": 369.884,
+      "uptimeMinutes": 5079,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-07T23:12:14.722268"
+      "lastActivity": "2026-03-07T23:18:21.268677"
     },
     {
       "id": "marketer",
@@ -69,12 +69,12 @@
       "color": "#5ac8fa",
       "model": "Sonnet",
       "status": "active",
-      "tokens": 3594541,
+      "tokens": 1265806,
       "tasks": 0,
-      "costUsd": 32.351,
-      "uptimeMinutes": 6127,
+      "costUsd": 11.392,
+      "uptimeMinutes": 6139,
       "lastTask": "4. Дождаться ответа Lumo по webhook",
-      "lastActivity": "2026-03-07T23:11:15.246091"
+      "lastActivity": "2026-03-07T23:22:53.589956"
     },
     {
       "id": "strategist",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 2,
-    "totalTokens": 13271993,
+    "active": 1,
+    "totalTokens": 10957246,
     "totalTasks": 0,
-    "totalCostUsd": 414.85
+    "totalCostUsd": 394.52
   }
 }
