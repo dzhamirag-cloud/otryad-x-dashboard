@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-08T11:13:51.938076",
+  "updatedAt": "2026-03-08T11:28:54.165552",
   "agents": [
     {
       "id": "main",
@@ -68,7 +68,7 @@
       "emoji": "⚙️",
       "color": "#5ac8fa",
       "model": "Sonnet",
-      "status": "active",
+      "status": "idle",
       "tokens": 1507383,
       "tasks": 0,
       "costUsd": 13.566,
@@ -94,7 +94,7 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 1,
+    "active": 0,
     "totalTokens": 11241872,
     "totalTasks": 0,
     "totalCostUsd": 398.27
