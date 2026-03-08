@@ -1,6 +1,18 @@
 {
-  "updatedAt": "2026-03-08T11:43:56.478325",
+  "updatedAt": "2026-03-08T11:58:58.965918",
   "tasks": [
+    {
+      "agent": "Текна",
+      "emoji": "⚙️",
+      "time": "2026-03-08 08:56",
+      "text": "Да, всё запушено ✅\n\nBackend и frontend на GitHub в main ветке. Только что отчитался выше — посмотри предыдущее сообщение."
+    },
+    {
+      "agent": "Текна",
+      "emoji": "⚙️",
+      "time": "2026-03-08 08:56",
+      "text": "Готово ⚙️\n\n**Запушено на GitHub (main):**\n\n✅ **Backend** → `AlfinExchange/alfin-staging-backend` — 4 коммита:\n- `6d5a561` feat: 3-step flow (prepare → accept → status)\n- `fa9e610` fix: UTC timezone в ..."
+    },
     {
       "agent": "Текна",
       "emoji": "⚙️",
@@ -54,36 +66,6 @@
       "emoji": "⚙️",
       "time": "2026-03-08 08:11",
       "text": "Теперь проблема таймера. Frontend может кешировать старый JS. Проверю:"
-    },
-    {
-      "agent": "Текна",
-      "emoji": "⚙️",
-      "time": "2026-03-08 08:10",
-      "text": "`total_usdt = quote.amount_usdt + quote.alfin_fee_usdt` — оба Decimal из БД. Потом `float(lumo_user.balance_usdt) - total_usdt` = float - Decimal = ошибка. Фикс — всё в float:"
-    },
-    {
-      "agent": "Текна",
-      "emoji": "⚙️",
-      "time": "2026-03-08 08:10",
-      "text": "Строка 260: `float(lumo_user.balance_usdt) - total_usdt` — тут `total_usdt` это `float(order.amount_usdt + order.alfin_fee_usdt)`, где `amount_usdt` и `alfin_fee_usdt` — Decimal. Проверю:"
-    },
-    {
-      "agent": "Текна",
-      "emoji": "⚙️",
-      "time": "2026-03-08 08:10",
-      "text": "Две проблемы:\n\n1. **Accept падает:** `unsupported operand type(s) for -: 'float' and 'decimal.Decimal'` — `balance_usdt` в БД это Decimal, а `total_usdt` это float. Нужно привести типы.\n2. **Таймер 0*..."
-    },
-    {
-      "agent": "Текна",
-      "emoji": "⚙️",
-      "time": "2026-03-08 08:10",
-      "text": "Таймер 0 + \"Network Error\" при accept. Проверю логи:"
-    },
-    {
-      "agent": "Текна",
-      "emoji": "⚙️",
-      "time": "2026-03-08 08:03",
-      "text": "Починил ⚙️\n\n**Проблема:** `expires_at` возвращался как `\"2026-03-08T08:01:05\"` (без \"Z\"), JavaScript считал это московским временем (UTC+3), а реально это UTC → quote \"истекал\" мгновенно (на 3 часа в ..."
     },
     {
       "agent": "Кайро",
@@ -300,6 +282,24 @@
       "emoji": "📈",
       "time": "2026-03-05 01:51",
       "text": "[[reply_to_current]] Отлично, Джамал! 📈\n\nАтрибуция — это именно то, что нужно для нормальной работы. Сейчас мы слепые — льём бюджет, но не понимаем, что конвертит, а что сливает.\n\n**Что это даст:**\n- ..."
+    },
+    {
+      "agent": "Текна",
+      "emoji": "⚙️",
+      "time": "2026-03-05 01:43",
+      "text": "На основе последней работы (2026-03-04):\n\n### 🔴 Критично\n1. **Alfin staging** — требуется твоё тестирование после отката  \n   - Backend: `https://san-colorado-main-persian.trycloudflare.com`\n   - Fron..."
+    },
+    {
+      "agent": "Марк",
+      "emoji": "📈",
+      "time": "2026-03-05 01:43",
+      "text": "Джамал, в памяти пока нет записанных задач — видимо, только начинаем работу.\n\nЧто сейчас в приоритете по маркетингу Alfin? Могу:\n- Составить список задач на основе того, что скажешь\n- Проанализировать..."
+    },
+    {
+      "agent": "Бренд",
+      "emoji": "🎯",
+      "time": "2026-03-05 01:43",
+      "text": "Джамал, у меня пока нет записей о текущих задачах — я только что подключился к команде 🎯\n\nДавай определим приоритеты для твоего личного бренда. Что сейчас важнее всего:\n\n1. **Контент-план** — Instagra..."
     }
   ]
 }
