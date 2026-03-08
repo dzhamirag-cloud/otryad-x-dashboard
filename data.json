@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-08T09:58:36.999483",
+  "updatedAt": "2026-03-08T10:13:38.986186",
   "agents": [
     {
       "id": "main",
@@ -8,13 +8,13 @@
       "emoji": "🤖",
       "color": "#3377ff",
       "model": "Opus",
-      "status": "idle",
-      "tokens": 8232299,
+      "status": "active",
+      "tokens": 8232850,
       "tasks": 0,
-      "costUsd": 370.453,
-      "uptimeMinutes": 5146,
+      "costUsd": 370.478,
+      "uptimeMinutes": 5733,
       "lastTask": "QR-оплата + кошелёк + координация Отряда X",
-      "lastActivity": "2026-03-08T00:25:53.152374"
+      "lastActivity": "2026-03-08T10:12:43.593632"
     },
     {
       "id": "marketer",
@@ -94,9 +94,9 @@
   ],
   "totals": {
     "agents": 6,
-    "active": 0,
-    "totalTokens": 11095850,
+    "active": 1,
+    "totalTokens": 11096401,
     "totalTasks": 0,
-    "totalCostUsd": 396.23
+    "totalCostUsd": 396.25
   }
 }
