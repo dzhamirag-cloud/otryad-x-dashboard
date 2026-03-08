@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-08T13:17:36.141845",
+  "updatedAt": "2026-03-08T13:32:45.887637",
   "agents": [
     {
       "id": "main",
@@ -69,12 +69,12 @@
       "color": "#5ac8fa",
       "model": "Sonnet",
       "status": "idle",
-      "tokens": 1744229,
+      "tokens": 1747978,
       "tasks": 0,
-      "costUsd": 15.698,
-      "uptimeMinutes": 6902,
-      "lastTask": "Ожидает задачу",
-      "lastActivity": "2026-03-08T12:06:06.543702"
+      "costUsd": 15.732,
+      "uptimeMinutes": 6980,
+      "lastTask": "- Бэк-агент получил 401 OAuth ошибку (expired token) при поп",
+      "lastActivity": "2026-03-08T13:24:02.920026"
     },
     {
       "id": "strategist",
@@ -95,8 +95,8 @@
   "totals": {
     "agents": 6,
     "active": 0,
-    "totalTokens": 11478718,
+    "totalTokens": 11482467,
     "totalTasks": 0,
-    "totalCostUsd": 400.4
+    "totalCostUsd": 400.44
   }
 }
